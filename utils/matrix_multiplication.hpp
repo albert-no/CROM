@@ -2,6 +2,8 @@
     matrix_multiplication.hpp
     butterfly matrix multiplication
 */
+#ifndef MATRIX_MULTIPLICATION_H
+#define MATRIX_MULTIPLICATION_H
 
 #include <iostream>
 #include <cmath>
@@ -9,8 +11,6 @@
 
 #define BLOCKLENGTH 65536
 #define HALFBLOCKLENGTH 32768
-
-using namespace std;
 
 void butterfly_matrix_multiplication (double *x,
                                       double *thetas,
@@ -20,3 +20,4 @@ void butterfly_matrix_multiplication (double *x,
                                       int theta_start_idx,
                                       int theta_end_idx,
                                       int mat_idx);
+#endif

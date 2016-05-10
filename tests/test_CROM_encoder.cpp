@@ -1,11 +1,12 @@
 #include <fstream>
 
-#include "CROM_encoder.hpp"
+#include "../encoder/CROM_encoder.hpp"
+using namespace std;
 
 int main() {
     double x[BLOCKLENGTH];
     double thetas[HALFBLOCKLENGTH];
-    double R = .1;
+    double R = .01;
     double doubleL;
     int xdim = BLOCKLENGTH;
     double n = static_cast<double> (xdim);
@@ -15,7 +16,7 @@ int main() {
     L = static_cast<int> (doubleL);
     cout << "creating m array" << endl;
     cout << "L = " << L << endl;
-    int *m_array = (int*) malloc(L+1);
+    int *m_array = (int*) malloc(sizeof(int)*(L+1));
     
     cout << "reading x input" << endl;
     ifstream x_infile;

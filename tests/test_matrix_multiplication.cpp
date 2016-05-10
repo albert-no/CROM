@@ -1,7 +1,7 @@
 /*
    test_matrix_multiplication.cpp
 */
-#include "matrix_multiplication.hpp"
+#include "../utils/matrix_multiplication.hpp"
 #include <fstream>
 
 #define BLOCKLENGTH 65536

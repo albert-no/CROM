@@ -29,7 +29,7 @@ int find_max_index(double *x, int x_dim){
         }
     }
     if (max_idx > BLOCKLENGTH) {
-        cout << "ERROR!" << endl;
+        printf("ERROR!");
     }
     return max_idx;
 }
@@ -83,7 +83,7 @@ void CROM_encoder(double *x, int x_dim, int L, int *m_array) {
     int theta_end_idx = half_mat_dim;
     int mat_idx;
 
-    double *thetas = (double *)malloc (half_mat_dim);
+    double *thetas = (double *)malloc (sizeof(double)*half_mat_dim);
 //    double *xtmp = (double *)malloc (BLOCKLENGTH);
 
     double scale = sqrt(n*(1-exp(-2*log(n)/n)));
@@ -104,7 +104,7 @@ void CROM_encoder(double *x, int x_dim, int L, int *m_array) {
     p = fftw_plan_r2r_1d(BLOCKLENGTH, x, x, FFTW_REDFT10, FFTW_ESTIMATE);
     // p = fftw_plan_r2r_1d(BLOCKLENGTH, x, xtmp, FFTW_REDFT10, FFTW_ESTIMATE | FFTW_IN_PLACE);
     for (iter_idx=0; iter_idx<L; iter_idx++) {
-        cout << "iteration = " << iter_idx << endl;
+        printf("iteration = %d\n", iter_idx);
         mat_idx = iter_idx % long_logn;
 
         // generate thetas from random seed
