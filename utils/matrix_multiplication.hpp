@@ -5,7 +5,6 @@
 #ifndef MATRIX_MULTIPLICATION_H
 #define MATRIX_MULTIPLICATION_H
 
-#include <iostream>
 #include <cmath>
 #include <fftw3.h>
 

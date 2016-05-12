@@ -29,7 +29,7 @@ int CROM_step(double *x, int x_dim, double scale) {
     return max_idx;
 }
 
-void CROM_encoder(double *x, int x_dim, int L, int *m_array) {
+void CROM_encoder(double *x, int x_dim, int L, int *m_array, bool print_l2norm) {
     /*
        CROM encoder
        Assume k=1
@@ -40,6 +40,7 @@ void CROM_encoder(double *x, int x_dim, int L, int *m_array) {
        x_dim :: dimension of x
        L :: number of iterations
        m_array :: array of massages
+       print_l2norm :: whether printing intermediate l2 norm
     */
     double n = static_cast<double> (x_dim);
     double logn = log(n);
@@ -65,6 +66,7 @@ void CROM_encoder(double *x, int x_dim, int L, int *m_array) {
     int x_cpy_idx;
     int theta_idx;
     int m;
+    double l2norm;
 
     // Set random seed for thetas
     srand(THETA_SEED);
@@ -90,11 +92,21 @@ void CROM_encoder(double *x, int x_dim, int L, int *m_array) {
                                         mat_idx);
         // run dct2
         fftw_execute(p);
+        // normalize after dct2
+        normalize_vector(x, x_dim);
         scale *= scale_factor;
 
         // run CROM
+        if (print_l2norm) {
+            print_vector(x, x_dim);
+        }
         m = CROM_step(x, x_dim, scale);
         m_array[iter_idx] = m;
+        if (print_l2norm) {
+            l2norm = compute_l2(x, x_dim);
+            l2norm /= n;
+            printf("m = %d, l2norm = %f\n", m, l2norm);
+        }
     }
     fftw_destroy_plan(p);
     free(thetas);

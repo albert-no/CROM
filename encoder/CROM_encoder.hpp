@@ -12,6 +12,6 @@
 #define THETA_SEED 1234
 
 int CROM_step(double *x, int x_dim, double scale);
-void CROM_encoder(double *x, int x_dim, int L, int *m_array);
+void CROM_encoder(double *x, int x_dim, int L, int *m_array, bool print_l2norm);
 
 #endif
