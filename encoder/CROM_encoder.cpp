@@ -3,37 +3,6 @@
 */
 #include "CROM_encoder.hpp"
 
-int find_max_index(double *x, int x_dim){
-    /*
-       Function that returns the index of maximum element
-
-       Input Parameters
-       ______________-_
-       x :: input vector
-       x_dim :: dimension of x
-       scale :: scale factor of iteration
-
-       Return Parameters
-       _________________
-       max_idx :: index of maximum element
-    */
-
-    int iter_idx;
-    int max_idx = 0;
-    double max_val = x[0];
-
-    for (iter_idx=1; iter_idx<x_dim; iter_idx++) {
-        if (max_val < x[iter_idx]) {
-            max_idx = iter_idx;
-            max_val = x[iter_idx];
-        }
-    }
-    if (max_idx > BLOCKLENGTH) {
-        printf("ERROR!");
-    }
-    return max_idx;
-}
-
 int CROM_step(double *x, int x_dim, double scale) {
     /*
        Single iteration of CROM encoder
@@ -84,7 +53,6 @@ void CROM_encoder(double *x, int x_dim, int L, int *m_array) {
     int mat_idx;
 
     double *thetas = (double *)malloc (sizeof(double)*half_mat_dim);
-//    double *xtmp = (double *)malloc (BLOCKLENGTH);
 
     double scale = sqrt(n*(1-exp(-2*log(n)/n)));
     double scale_factor= exp(-log(n)/n);
@@ -101,8 +69,7 @@ void CROM_encoder(double *x, int x_dim, int L, int *m_array) {
     // Set random seed for thetas
     srand(THETA_SEED);
     fftw_plan p;
-    p = fftw_plan_r2r_1d(BLOCKLENGTH, x, x, FFTW_REDFT10, FFTW_ESTIMATE);
-    // p = fftw_plan_r2r_1d(BLOCKLENGTH, x, xtmp, FFTW_REDFT10, FFTW_ESTIMATE | FFTW_IN_PLACE);
+    p = fftw_plan_r2r_1d(x_dim, x, x, FFTW_REDFT10, FFTW_ESTIMATE);
     for (iter_idx=0; iter_idx<L; iter_idx++) {
         printf("iteration = %d\n", iter_idx);
         mat_idx = iter_idx % long_logn;
@@ -123,9 +90,6 @@ void CROM_encoder(double *x, int x_dim, int L, int *m_array) {
                                         mat_idx);
         // run dct2
         fftw_execute(p);
-        //for (x_cpy_idx=0; x_cpy_idx<BLOCKLENGTH; x_cpy_idx++) {
-        //    x[x_cpy_idx] = xtmp[x_cpy_idx]/2.0;
-        //}
         scale *= scale_factor;
 
         // run CROM
@@ -134,5 +98,4 @@ void CROM_encoder(double *x, int x_dim, int L, int *m_array) {
     }
     fftw_destroy_plan(p);
     free(thetas);
-    // free(xtmp);
 }
