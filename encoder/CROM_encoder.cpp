@@ -71,7 +71,7 @@ void CROM_encoder(double *x, int x_dim, int L, int *m_array, bool print_l2norm) 
     // Set random seed for thetas
     srand(THETA_SEED);
     fftw_plan p;
-    p = fftw_plan_r2r_1d(x_dim, x, x, FFTW_REDFT10, FFTW_ESTIMATE);
+    p = fftw_plan_r2r_1d(x_dim, x, x, FFTW_REDFT10, FFTW_MEASURE);
     for (iter_idx=0; iter_idx<L; iter_idx++) {
         printf("iteration = %d\n", iter_idx);
         mat_idx = iter_idx % long_logn;
@@ -91,8 +91,14 @@ void CROM_encoder(double *x, int x_dim, int L, int *m_array, bool print_l2norm) 
                                         theta_end_idx,
                                         mat_idx);
         // run dct2
+        if (print_l2norm) {
+            print_vector(x, x_dim);
+        }
         fftw_execute(p);
         // normalize after dct2
+        if (print_l2norm) {
+            print_vector(x, x_dim);
+        }
         normalize_vector(x, x_dim);
         scale *= scale_factor;
 

@@ -1,6 +1,6 @@
 #include <fstream>
-#define TEST_BLOCKLENGTH 16
-#define TEST_HALFBLOCKLENGTH 16
+#define TEST_BLOCKLENGTH 256
+#define TEST_HALFBLOCKLENGTH 128
 
 #include "../../encoder/CROM_encoder.hpp"
 using namespace std;
@@ -8,7 +8,7 @@ using namespace std;
 int main() {
     double x[TEST_BLOCKLENGTH];
     double thetas[TEST_HALFBLOCKLENGTH];
-    double R = 1;
+    double R = 0.1;
     double doubleL;
     int xdim = TEST_BLOCKLENGTH;
     double n = static_cast<double> (xdim);

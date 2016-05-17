@@ -71,7 +71,7 @@ void print_vector(double *x, int x_dim) {
     for (iter_idx=0; iter_idx<x_dim; iter_idx++) {
         printf("%6.3f, ", x[iter_idx]);
     }
-    printf("\n");
+    printf("\n\n");
 }
 
 void normalize_vector(double *x, int x_dim) {
