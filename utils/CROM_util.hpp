@@ -4,6 +4,7 @@
 #ifndef CROM_UTIL_H
 #define CROM_UTIL_H
 
+#include <stdio.h>
 #include <iostream>
 #include <cmath>
 

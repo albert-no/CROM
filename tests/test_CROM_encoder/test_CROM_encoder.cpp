@@ -2,7 +2,7 @@
 #define TEST_BLOCKLENGTH 16
 #define TEST_HALFBLOCKLENGTH 16
 
-#include "../encoder/CROM_encoder.hpp"
+#include "../../encoder/CROM_encoder.hpp"
 using namespace std;
 
 int main() {
@@ -22,7 +22,7 @@ int main() {
     
     cout << "reading x input" << endl;
     ifstream x_infile;
-    x_infile.open("x_input.txt");
+    x_infile.open("../input/x_input.txt");
     
     int read_line_idx;
     for (read_line_idx=0; read_line_idx<TEST_BLOCKLENGTH; read_line_idx++) {
