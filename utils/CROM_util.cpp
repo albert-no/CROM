@@ -93,8 +93,8 @@ void normalize_vector(double *x, int x_dim) {
 
     int iter_idx;
     double n = static_cast <double> (x_dim);
-    double inverse_sqrtn = sqrt(1/n);
-    double inverse_halfsqrtn = sqrt(2/n);
+    double inverse_sqrtn = sqrt(1/4.0/n);
+    double inverse_halfsqrtn = sqrt(1/2.0/n);
 
     x[0] *= inverse_sqrtn;
     for (iter_idx=1; iter_idx<x_dim; iter_idx++) {
