@@ -19,6 +19,8 @@ int main() {
     x_outfile.open("x_input.txt");
     for (write_line_idx=0; write_line_idx<BLOCKLENGTH; write_line_idx++) {
         uni_rand = static_cast <float> (rand()) / static_cast <float> (RAND_MAX); 
+        uni_rand -= 0.5;
+        uni_rand *= sqrt(12);
         x_outfile << uni_rand << endl;
     }
     x_outfile.close();

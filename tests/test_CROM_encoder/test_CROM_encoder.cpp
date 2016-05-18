@@ -1,6 +1,6 @@
 #include <fstream>
-#define TEST_BLOCKLENGTH 256
-#define TEST_HALFBLOCKLENGTH 128
+#define TEST_BLOCKLENGTH 8192
+#define TEST_HALFBLOCKLENGTH 4096
 
 #include "../../encoder/CROM_encoder.hpp"
 using namespace std;
@@ -31,7 +31,7 @@ int main() {
     x_infile.close();
 
     cout << "Running CROM" << endl;
-    CROM_encoder(x, xdim, L, m_array, true);
+    CROM_encoder(x, xdim, L, m_array, false);
 
     int m_iter_idx;
     for (m_iter_idx=0; m_iter_idx<L; m_iter_idx++) {
