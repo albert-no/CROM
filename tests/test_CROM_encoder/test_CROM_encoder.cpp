@@ -1,6 +1,6 @@
 #include <fstream>
-#define TEST_BLOCKLENGTH 8192
-#define TEST_HALFBLOCKLENGTH 4096
+#define TEST_BLOCKLENGTH 65536
+#define TEST_HALFBLOCKLENGTH 32768
 
 #include "../../encoder/CROM_encoder.hpp"
 using namespace std;

@@ -46,14 +46,12 @@ void CROM_encoder(double *x, int x_dim, int L, int *m_array, bool print_l2norm) 
     double logn = log(n);
     int long_logn = static_cast<int> (logn);
 
-    int half_mat_dim = x_dim/2;
+    int half_len = x_dim/2;
     int x_start_idx = 0;
-    int x_end_idx = x_dim;
     int theta_start_idx = 0;
-    int theta_end_idx = half_mat_dim;
     int mat_idx;
 
-    double *thetas = (double *)malloc (sizeof(double)*half_mat_dim);
+    double *thetas = (double *)malloc (sizeof(double)*half_len);
     double *x_out = (double *)malloc (sizeof(double)*x_dim);
 
     double scale = sqrt(n*(1-exp(-2*log(n)/n)));
@@ -78,18 +76,16 @@ void CROM_encoder(double *x, int x_dim, int L, int *m_array, bool print_l2norm) 
         mat_idx = iter_idx % long_logn;
 
         // generate thetas from random seed
-        for (theta_idx=0; theta_idx<half_mat_dim; theta_idx++) {
+        for (theta_idx=0; theta_idx<half_len; theta_idx++) {
             uni_rand = static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
             thetas[theta_idx] = uni_rand * M_PI;
         }
         // multiply butterfly matrix
         butterfly_matrix_multiplication(x,
                                         thetas,
-                                        half_mat_dim,
+                                        half_len,
                                         x_start_idx,
-                                        x_end_idx,
                                         theta_start_idx,
-                                        theta_end_idx,
                                         mat_idx);
         // run dct2
         fftw_execute(p);
