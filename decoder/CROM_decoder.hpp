@@ -9,9 +9,7 @@
 #include <cstdlib>
 #include <cmath>
 
-#define THETA_SEED 1234
-
-int CROM_decoding_step(double *x, int x_dim, double scale);
-void CROM_decoder(double *x, int x_dim, int L, int *m_array, bool print_l2norm);
+void CROM_decoding_step(double *x, int x_dim, double scale, int m);
+void CROM_decoder(double *xhat, int x_dim, int L, int *m_array);
 
 #endif

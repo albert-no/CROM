@@ -74,7 +74,7 @@ void print_vector(double *x, int x_dim) {
     printf("\n\n");
 }
 
-void normalize_vector(double *x, int x_dim) {
+void normalize_then_copy_vector(double *x, double *xout, int x_dim, bool decoding) {
     /*
        Normalize vector after dct2
 
@@ -85,7 +85,9 @@ void normalize_vector(double *x, int x_dim) {
        Input Parameters
        ______________-_
        x :: input vector
+       xout :: output of dct
        x_dim :: dimension of x
+       decoding :: true if this is called during the decoding 
 
        Return Parameters
        _________________
@@ -96,8 +98,11 @@ void normalize_vector(double *x, int x_dim) {
     double inverse_sqrtn = sqrt(1/4.0/n);
     double inverse_halfsqrtn = sqrt(1/2.0/n);
 
-    x[0] *= inverse_sqrtn;
+    x[0] = inverse_sqrtn * xout[0];
+    if (decoding) {
+        x[0] *= 2;
+    }
     for (iter_idx=1; iter_idx<x_dim; iter_idx++) {
-        x[iter_idx] *= inverse_halfsqrtn;
+        x[iter_idx] = inverse_halfsqrtn * xout[iter_idx];
     }
 }

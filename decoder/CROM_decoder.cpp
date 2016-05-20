@@ -3,7 +3,7 @@
 */
 #include "CROM_decoder.hpp"
 
-void CROM_decoding_step(double *x, int x_dim, double scale, int m) {
+void CROM_decoding_step(double *xhat, int x_dim, double scale, int m) {
     /*
        Single iteration of CROM encoder
        Assume k=1
@@ -21,10 +21,10 @@ void CROM_decoding_step(double *x, int x_dim, double scale, int m) {
 
     offset = -sqrt(1.0/n/(n-1.0)) * scale;
     for (iter_idx=0; iter_idx<x_dim; iter_idx++) {
-        x[iter_idx] += offset;
+        xhat[iter_idx] += offset;
     }
-    x[m] -= offset;
-    x[m] += (sqrt((n-1.0)/n)*scale);
+    xhat[m] -= offset;
+    xhat[m] += (sqrt((n-1.0)/n)*scale);
 }
 
 void CROM_decoder(double *xhat, int x_dim, int L, int *m_array) {
@@ -60,38 +60,36 @@ void CROM_decoder(double *xhat, int x_dim, int L, int *m_array) {
     // scale = [sqrt(n*(1-exp(-2*R/rawL))) * exp(-i*R/rawL)
     // R/L = log(n)/n
     int iter_idx;
-    int x_cpy_idx;
     int theta_idx;
     int m;
     double l2norm;
 
     // Set random seed for thetas
-    srand(THETA_SEED);
     fftw_plan p;
-    p = fftw_plan_r2r_1d(x_dim, x, x_out, FFTW_REDFT01, FFTW_MEASURE);
+    p = fftw_plan_r2r_1d(x_dim, xhat, x_out, FFTW_REDFT01, FFTW_MEASURE);
     for (iter_idx=L-1; iter_idx>=0; iter_idx--) {
         printf("iteration = %d\n", iter_idx);
         mat_idx = iter_idx % long_logn;
 
         // Decoding step
         m = m_array[iter_idx];
-        CROM_decoding_step(x, x_dim, scale, m);
+        CROM_decoding_step(xhat, x_dim, scale, m);
+
         // run idct2
         fftw_execute(p);
-        for (x_cpy_idx=0; x_cpy_idx<x_dim; x_cpy_idx++) {
-            x[x_cpy_idx] = x_out[x_cpy_idx];
-        }
-        // normalize after idct2
-        normalize_vector(x, x_dim);
+
+        // normalize after idct2 (bool decoding = true)
+        normalize_then_copy_vector(xhat, x_out, x_dim, true);
         scale *= scale_factor;
 
         // generate thetas from random seed
+        srand(iter_idx);
         for (theta_idx=0; theta_idx<half_len; theta_idx++) {
             uni_rand = static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
             thetas_inv[theta_idx] = -uni_rand * M_PI;
         }
         // multiply inverse butterfly matrix
-        butterfly_matrix_multiplication(x,
+        butterfly_matrix_multiplication(xhat,
                                         thetas_inv,
                                         half_len,
                                         x_start_idx,

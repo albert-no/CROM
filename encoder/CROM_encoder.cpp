@@ -62,7 +62,6 @@ void CROM_encoder(double *x, int x_dim, int L, int *m_array, bool print_l2norm) 
     // scale = [sqrt(n*(1-exp(-2*R/rawL))) * exp(-i*R/rawL)
     // R/L = log(n)/n
     int iter_idx;
-    int x_cpy_idx;
     int theta_idx;
     int m;
     double l2norm;
@@ -80,6 +79,7 @@ void CROM_encoder(double *x, int x_dim, int L, int *m_array, bool print_l2norm) 
             uni_rand = static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
             thetas[theta_idx] = uni_rand * M_PI;
         }
+
         // multiply butterfly matrix
         butterfly_matrix_multiplication(x,
                                         thetas,
@@ -89,11 +89,9 @@ void CROM_encoder(double *x, int x_dim, int L, int *m_array, bool print_l2norm) 
                                         mat_idx);
         // run dct2
         fftw_execute(p);
-        for (x_cpy_idx=0; x_cpy_idx<x_dim; x_cpy_idx++) {
-            x[x_cpy_idx] = x_out[x_cpy_idx];
-        }
-        // normalize after dct2
-        normalize_vector(x, x_dim);
+
+        // normalize after dct2 (bool decoding = false)
+        normalize_then_copy_vector(x, x_out, x_dim, false);
         scale *= scale_factor;
 
         // run CROM
