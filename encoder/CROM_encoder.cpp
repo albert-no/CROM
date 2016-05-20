@@ -68,7 +68,6 @@ void CROM_encoder(double *x, int x_dim, int L, int *m_array, bool print_l2norm) 
     double l2norm;
 
     // Set random seed for thetas
-    srand(THETA_SEED);
     fftw_plan p;
     p = fftw_plan_r2r_1d(x_dim, x, x_out, FFTW_REDFT10, FFTW_MEASURE);
     for (iter_idx=0; iter_idx<L; iter_idx++) {
@@ -76,6 +75,7 @@ void CROM_encoder(double *x, int x_dim, int L, int *m_array, bool print_l2norm) 
         mat_idx = iter_idx % long_logn;
 
         // generate thetas from random seed
+        srand(iter_idx);
         for (theta_idx=0; theta_idx<half_len; theta_idx++) {
             uni_rand = static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
             thetas[theta_idx] = uni_rand * M_PI;
