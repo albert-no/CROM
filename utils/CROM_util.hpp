@@ -11,6 +11,8 @@
 int find_max_index(double *x, int x_dim);
 double compute_l2(double *x, int x_dim);
 void print_vector(double *x, int x_dim);
-void normalize_then_copy_vector(double *x, double *xout, int x_dim, bool decoding);
+void unnormalize_vector(double *x, int x_dim);
+void copy_vector(double *x, double *xout, int x_dim);
+void normalize_then_copy_vector(double *x, double *xout, int x_dim);
 
 #endif

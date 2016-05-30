@@ -10,6 +10,6 @@
 #include <cmath>
 
 void CROM_decoding_step(double *x, int x_dim, double scale, int m);
-void CROM_decoder(double *xhat, int x_dim, int L, int *m_array);
+void CROM_decoder(double *xhat, int x_dim, int L, int *m_array, bool verbose);
 
 #endif

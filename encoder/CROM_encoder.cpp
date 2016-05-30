@@ -29,7 +29,7 @@ int CROM_step(double *x, int x_dim, double scale) {
     return max_idx;
 }
 
-void CROM_encoder(double *x, int x_dim, int L, int *m_array, bool print_l2norm) {
+void CROM_encoder(double *x, int x_dim, int L, int *m_array, bool verbose) {
     /*
        CROM encoder
        Assume k=1
@@ -40,7 +40,7 @@ void CROM_encoder(double *x, int x_dim, int L, int *m_array, bool print_l2norm) 
        x_dim :: dimension of x
        L :: number of iterations
        m_array :: array of massages
-       print_l2norm :: whether printing intermediate l2 norm
+       verbose :: whether printing intermediate l2 norm
     */
     double n = static_cast<double> (x_dim);
     double logn = log(n);
@@ -90,12 +90,12 @@ void CROM_encoder(double *x, int x_dim, int L, int *m_array, bool print_l2norm) 
         // run dct2
         fftw_execute(p);
 
-        // normalize after dct2 (bool decoding = false)
-        normalize_then_copy_vector(x, x_out, x_dim, false);
+        // normalize after dct2
+        normalize_then_copy_vector(x, x_out, x_dim);
         scale *= scale_factor;
 
         // run CROM
-        if (print_l2norm) {
+        if (verbose) {
             print_vector(x, x_dim);
         }
         m = CROM_step(x, x_dim, scale);

@@ -27,7 +27,7 @@ void CROM_decoding_step(double *xhat, int x_dim, double scale, int m) {
     xhat[m] += (sqrt((n-1.0)/n)*scale);
 }
 
-void CROM_decoder(double *xhat, int x_dim, int L, int *m_array) {
+void CROM_decoder(double *xhat, int x_dim, int L, int *m_array, bool verbose) {
     /*
        CROM encoder
        Assume k=1
@@ -75,11 +75,13 @@ void CROM_decoder(double *xhat, int x_dim, int L, int *m_array) {
         m = m_array[iter_idx];
         CROM_decoding_step(xhat, x_dim, scale, m);
 
+        // unnormalize before idct2
+        unnormalize_vector(xhat, x_dim);
         // run idct2
         fftw_execute(p);
+        // copy x from xout
+        copy_vector(xhat, x_out, x_dim);
 
-        // normalize after idct2 (bool decoding = true)
-        normalize_then_copy_vector(xhat, x_out, x_dim, true);
         scale *= scale_factor;
 
         // generate thetas from random seed
@@ -95,6 +97,9 @@ void CROM_decoder(double *xhat, int x_dim, int L, int *m_array) {
                                         x_start_idx,
                                         theta_start_idx,
                                         mat_idx);
+        if (verbose) {
+            print_vector(xhat, x_dim);
+        }
     }
     fftw_destroy_plan(p);
     free(thetas_inv);
