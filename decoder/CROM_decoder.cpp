@@ -64,6 +64,9 @@ void CROM_decoder(double *xhat, int x_dim, int L, int *m_array, bool verbose) {
     int m;
     double l2norm;
 
+    // setup scale
+    scale = sqrt(n*(1-exp(-2*log(n)/n))) * exp(-(L)*log(n)/n);
+
     // Set random seed for thetas
     fftw_plan p;
     p = fftw_plan_r2r_1d(x_dim, xhat, x_out, FFTW_REDFT01, FFTW_MEASURE);
@@ -82,7 +85,7 @@ void CROM_decoder(double *xhat, int x_dim, int L, int *m_array, bool verbose) {
         // copy x from xout
         copy_vector(xhat, x_out, x_dim);
 
-        scale *= scale_factor;
+        scale /= scale_factor;
 
         // generate thetas from random seed
         srand(iter_idx);

@@ -50,6 +50,7 @@ int main() {
         diff = x_save[read_line_idx] - xhat[read_line_idx];
         l2norm += (diff*diff);
     }
+    l2norm /= n;
     cout << "l2-norm at the end = " << l2norm << endl;
     free(m_array);
     return 0;
