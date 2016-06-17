@@ -11,8 +11,6 @@
 #include "../utils/CROM_util.hpp"
 #include "../utils/matrix_multiplication.hpp"
 
-//int CROM_step(double *x, int x_dim, double scale);
-//void CROM_encoder(double *x, int x_dim, int L, int *m_array, bool verbose);
 
 class CROM_encoder
 {
@@ -43,6 +41,9 @@ public:
 
     // TBD XXX we may want to update the way of reading x value
     void read_x(std::string filename);
+    void copy_x(double *x_copy);
+    void copy_m_array(int *m_array_copy);
+    int get_L();
     void run();
     void print_m_array();
     // TBD XXX we may want to print m_array to file

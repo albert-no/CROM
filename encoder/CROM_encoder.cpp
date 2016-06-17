@@ -3,7 +3,6 @@
 */
 #include "CROM_encoder.hpp"
 
-
 // Constructor
 CROM_encoder::CROM_encoder(int x_dim_in, double R_in, bool verbose_in) {
     x_dim = x_dim_in;
@@ -19,7 +18,6 @@ CROM_encoder::CROM_encoder(int x_dim_in, double R_in, bool verbose_in) {
     x = new double[x_dim];
 }
 
-
 // Destructor
 CROM_encoder::~CROM_encoder() {
     if (x)
@@ -27,7 +25,6 @@ CROM_encoder::~CROM_encoder() {
     if (m_array)
         delete[] m_array;
 }
-
 
 void CROM_encoder::read_x(std::string filename) {
     /* Read x from given file
@@ -43,6 +40,23 @@ void CROM_encoder::read_x(std::string filename) {
     x_infile.close();
 }
 
+void CROM_encoder::copy_x(double *x_copy) {
+    int iter_idx;
+    for (iter_idx=0; iter_idx<x_dim; iter_idx++) {
+        x_copy[iter_idx] = x[iter_idx];
+    }
+}
+
+int CROM_encoder::get_L() {
+    return L;
+}
+
+void CROM_encoder::copy_m_array(int *m_array_copy) {
+    int iter_idx;
+    for (iter_idx=0; iter_idx<L; iter_idx++) {
+        m_array_copy[iter_idx] = m_array[iter_idx];
+    }
+}
 
 int CROM_encoder::step(double scale) {
     /* Single iteration of CROM encoder with k=1
@@ -141,7 +155,6 @@ void CROM_encoder::run() {
     delete[] thetas;
     delete[] x_out;
 }
-
 
 void CROM_encoder::print_m_array() {
     /* Print message array

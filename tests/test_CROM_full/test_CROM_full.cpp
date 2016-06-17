@@ -7,42 +7,36 @@
 using namespace std;
 
 int main() {
-    double x[TEST_BLOCKLENGTH];
-    double x_save[TEST_BLOCKLENGTH];
-    double xhat[TEST_BLOCKLENGTH];
-    double thetas[TEST_HALFBLOCKLENGTH];
-    double R = 0.1;
-    double doubleL;
+    double R = 0.01;
     int xdim = TEST_BLOCKLENGTH;
-    double n = static_cast<double> (xdim);
-    int L;
+    double x_save[TEST_BLOCKLENGTH];
+    bool verbose = false;
 
-    doubleL = n*R / log(n);
-    L = static_cast<int> (doubleL);
-    cout << "creating m array" << endl;
-    cout << "L = " << L << endl;
-    int *m_array = new int[L+1];
+    double xhat[TEST_BLOCKLENGTH];
+
+    CROM_encoder enc (xdim, R, verbose);
+    string fname = "../input/x_input.txt";
     
-    cout << "reading x input" << endl;
-    ifstream x_infile;
-    x_infile.open("../input/x_input.txt");
-    
-    // read x and initialize xhat
+    // read x
+    enc.read_x(fname);
+    // store original x
+    enc.copy_x(x_save);
+
+    cout << "Running CROM : Encoding" << endl;
+    // encoding
+    enc.run();
+
+    int L = enc.get_L();
+    int *m_array_copy = new int[L];
+    enc.copy_m_array(m_array_copy);
+
+    cout << "Running CROM : Decoding" << endl;
+    // decoding
     int read_line_idx;
     for (read_line_idx=0; read_line_idx<TEST_BLOCKLENGTH; read_line_idx++) {
-        x_infile >> x[read_line_idx];
-        x_save[read_line_idx] = x[read_line_idx];
         xhat[read_line_idx] = 0;
     }
-    x_infile.close()
-
-    cout << "Running CROM" << endl;
-    bool verbose = false;
-    cout << "Encoding" << endl;
-    CROM_encoder(x, xdim, L, m_array, verbose);
-
-    cout << "Decoding" << endl;
-    CROM_decoder(xhat, xdim, L, m_array, verbose);
+    CROM_decoder(xhat, xdim, L, m_array_copy, verbose);
 
     cout << "Comparing" << endl;
     double l2norm = 0;
@@ -51,9 +45,10 @@ int main() {
         diff = x_save[read_line_idx] - xhat[read_line_idx];
         l2norm += (diff*diff);
     }
+    double n = static_cast<double> (xdim);
     l2norm /= n;
     cout << "l2-norm at the end = " << l2norm << endl;
-    delete[] m_array;
+    delete[] m_array_copy;
     return 0;
 }
 
