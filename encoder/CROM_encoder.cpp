@@ -51,8 +51,8 @@ void CROM_encoder(double *x, int x_dim, int L, int *m_array, bool verbose) {
     int theta_start_idx = 0;
     int mat_idx;
 
-    double *thetas = (double *)malloc (sizeof(double)*half_len);
-    double *x_out = (double *)malloc (sizeof(double)*x_dim);
+    double *thetas = new double[half_len];
+    double *x_out = new double[x_dim];
 
     double scale = sqrt(n*(1-exp(-2*log(n)/n)));
     double scale_factor= exp(-log(n)/n);
@@ -108,6 +108,6 @@ void CROM_encoder(double *x, int x_dim, int L, int *m_array, bool verbose) {
         scale *= scale_factor;
     }
     fftw_destroy_plan(p);
-    free(thetas);
-    free(x_out);
+    delete[] thetas;
+    delete[] x_out;
 }

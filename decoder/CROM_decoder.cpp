@@ -49,8 +49,8 @@ void CROM_decoder(double *xhat, int x_dim, int L, int *m_array, bool verbose) {
     int theta_start_idx = 0;
     int mat_idx;
 
-    double *thetas_inv = (double *)malloc (sizeof(double)*half_len);
-    double *x_out = (double *)malloc (sizeof(double)*x_dim);
+    double *thetas_inv = new double[half_len];
+    double *x_out = new double[x_dim];
 
     double scale = sqrt(n*(1-exp(-2*log(n)/n)));
     double scale_factor= exp(-log(n)/n);
@@ -105,6 +105,6 @@ void CROM_decoder(double *xhat, int x_dim, int L, int *m_array, bool verbose) {
         }
     }
     fftw_destroy_plan(p);
-    free(thetas_inv);
-    free(x_out);
+    delete[] thetas_inv;
+    delete[] x_out;
 }
