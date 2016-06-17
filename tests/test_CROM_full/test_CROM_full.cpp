@@ -11,7 +11,7 @@ int main() {
     double x_save[TEST_BLOCKLENGTH];
     double xhat[TEST_BLOCKLENGTH];
     double thetas[TEST_HALFBLOCKLENGTH];
-    double R = 2;
+    double R = 0.1;
     double doubleL;
     int xdim = TEST_BLOCKLENGTH;
     double n = static_cast<double> (xdim);
@@ -21,7 +21,7 @@ int main() {
     L = static_cast<int> (doubleL);
     cout << "creating m array" << endl;
     cout << "L = " << L << endl;
-    int *m_array = (int*) malloc(sizeof(int)*(L+1));
+    int *m_array = new int[L+1];
     
     cout << "reading x input" << endl;
     ifstream x_infile;
@@ -52,7 +52,7 @@ int main() {
     }
     l2norm /= n;
     cout << "l2-norm at the end = " << l2norm << endl;
-    free(m_array);
+    delete[] m_array;
     return 0;
 }
 

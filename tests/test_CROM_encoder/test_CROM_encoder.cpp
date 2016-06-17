@@ -18,7 +18,7 @@ int main() {
     L = static_cast<int> (doubleL);
     cout << "creating m array" << endl;
     cout << "L = " << L << endl;
-    int *m_array = (int*) malloc(sizeof(int)*(L+1));
+    int *m_array = new int[L+1];
     
     cout << "reading x input" << endl;
     ifstream x_infile;
@@ -37,7 +37,7 @@ int main() {
     for (m_iter_idx=0; m_iter_idx<L; m_iter_idx++) {
         cout << m_array[m_iter_idx] << endl;
     }
-    free(m_array);
+    delete[] m_array;
     return 0;
 }
 
