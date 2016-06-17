@@ -3,8 +3,9 @@
 */
 #include "CROM_encoder.hpp"
 
+
+// Constructor
 CROM_encoder::CROM_encoder(int x_dim_in, double R_in, bool verbose_in) {
-    // Constructor
     x_dim = x_dim_in;
     R = R_in;
     verbose = verbose_in;
@@ -19,6 +20,7 @@ CROM_encoder::CROM_encoder(int x_dim_in, double R_in, bool verbose_in) {
 }
 
 
+// Destructor
 CROM_encoder::~CROM_encoder() {
     if (x)
         delete[] x;
@@ -28,6 +30,10 @@ CROM_encoder::~CROM_encoder() {
 
 
 void CROM_encoder::read_x(std::string filename) {
+    /* Read x from given file
+
+    */
+
     std::ifstream x_infile;
     x_infile.open(filename.c_str());
     int read_line_idx;
@@ -39,14 +45,13 @@ void CROM_encoder::read_x(std::string filename) {
 
 
 int CROM_encoder::step(double scale) {
-    /*
-       Single iteration of CROM encoder
-       Assume k=1
+    /* Single iteration of CROM encoder with k=1
 
-       Parameters
-       ----------
-       scale :: scale factor of iteration
+        Parameters
+        ----------
+        scale :: scale factor of iteration
     */
+
     int max_idx;
     int iter_idx;
     double n = static_cast<double> (x_dim);
@@ -83,9 +88,9 @@ void CROM_encoder::run() {
     double scale_factor= exp(-log(n)/n);
     double uni_rand;
 
-    // at i-th iterationof 
-    // scale = [sqrt(n*(1-exp(-2*R/rawL))) * exp(-i*R/rawL)
-    // R/L = log(n)/n
+    // At i-th iteration,
+    // scale = sqrt(n*(1-exp(-2*R/rawL))) * exp(-i*R/rawL)
+    // Note that R/L = log(n)/n
     int iter_idx;
     int theta_idx;
     int m;
@@ -139,6 +144,10 @@ void CROM_encoder::run() {
 
 
 void CROM_encoder::print_m_array() {
+    /* Print message array
+
+    */
+
     int m_iter_idx;
     for (m_iter_idx=0; m_iter_idx<L; m_iter_idx++) {
         printf("%d\n", m_array[m_iter_idx]);
