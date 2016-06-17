@@ -3,15 +3,48 @@
 */
 #include "CROM_encoder.hpp"
 
-int CROM_step(double *x, int x_dim, double scale) {
+CROM_encoder::CROM_encoder(int x_dim_in, double R_in, bool verbose_in) {
+    // Constructor
+    x_dim = x_dim_in;
+    R = R_in;
+    verbose = verbose_in;
+
+    // compute the number of iterations
+    double n = static_cast<double> (x_dim);
+    L = static_cast<int> (n*R/log(n));
+
+    // allocate memory
+    m_array = new int[L+1];
+    x = new double[x_dim];
+}
+
+
+CROM_encoder::~CROM_encoder() {
+    if (x)
+        delete[] x;
+    if (m_array)
+        delete[] m_array;
+}
+
+
+void CROM_encoder::read_x(std::string filename) {
+    std::ifstream x_infile;
+    x_infile.open(filename.c_str());
+    int read_line_idx;
+    for (read_line_idx=0; read_line_idx<x_dim; read_line_idx++) {
+        x_infile >> x[read_line_idx];
+    }
+    x_infile.close();
+}
+
+
+int CROM_encoder::step(double scale) {
     /*
        Single iteration of CROM encoder
        Assume k=1
 
-       Input Parameters
-       ______________-_
-       x :: input vector
-       x_dim :: dimension of x
+       Parameters
+       ----------
        scale :: scale factor of iteration
     */
     int max_idx;
@@ -29,18 +62,10 @@ int CROM_step(double *x, int x_dim, double scale) {
     return max_idx;
 }
 
-void CROM_encoder(double *x, int x_dim, int L, int *m_array, bool verbose) {
-    /*
-       CROM encoder
-       Assume k=1
 
-       Input Parameters
-       ______________-_
-       x :: input vector
-       x_dim :: dimension of x
-       L :: number of iterations
-       m_array :: array of massages
-       verbose :: whether printing intermediate l2 norm
+void CROM_encoder::run() {
+    /* Run CROM encoder with k=1
+
     */
     double n = static_cast<double> (x_dim);
     double logn = log(n);
@@ -97,7 +122,7 @@ void CROM_encoder(double *x, int x_dim, int L, int *m_array, bool verbose) {
         if (verbose) {
             print_vector(x, x_dim);
         }
-        m = CROM_step(x, x_dim, scale);
+        m = step(scale);
         m_array[iter_idx] = m;
 
         // print l2norm
@@ -110,4 +135,12 @@ void CROM_encoder(double *x, int x_dim, int L, int *m_array, bool verbose) {
     fftw_destroy_plan(p);
     delete[] thetas;
     delete[] x_out;
+}
+
+
+void CROM_encoder::print_m_array() {
+    int m_iter_idx;
+    for (m_iter_idx=0; m_iter_idx<L; m_iter_idx++) {
+        printf("%d\n", m_array[m_iter_idx]);
+    }
 }

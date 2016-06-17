@@ -34,6 +34,7 @@ int main() {
         x_save[read_line_idx] = x[read_line_idx];
         xhat[read_line_idx] = 0;
     }
+    x_infile.close()
 
     cout << "Running CROM" << endl;
     bool verbose = false;

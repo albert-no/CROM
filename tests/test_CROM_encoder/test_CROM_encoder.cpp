@@ -1,4 +1,3 @@
-#include <fstream>
 #define TEST_BLOCKLENGTH 65536
 #define TEST_HALFBLOCKLENGTH 32768
 
@@ -6,38 +5,18 @@
 using namespace std;
 
 int main() {
-    double x[TEST_BLOCKLENGTH];
-    double thetas[TEST_HALFBLOCKLENGTH];
     double R = 0.1;
-    double doubleL;
     int xdim = TEST_BLOCKLENGTH;
-    double n = static_cast<double> (xdim);
-    int L;
-
-    doubleL = n*R / log(n);
-    L = static_cast<int> (doubleL);
-    cout << "creating m array" << endl;
-    cout << "L = " << L << endl;
-    int *m_array = new int[L+1];
+    bool verbose = false;
     
+    CROM_encoder enc (xdim, R, verbose);
     cout << "reading x input" << endl;
-    ifstream x_infile;
-    x_infile.open("../input/x_input.txt");
-    
-    int read_line_idx;
-    for (read_line_idx=0; read_line_idx<TEST_BLOCKLENGTH; read_line_idx++) {
-        x_infile >> x[read_line_idx];
-    }
-    x_infile.close();
+    string fname = "../input/x_input.txt";
+    enc.read_x(fname);
 
     cout << "Running CROM" << endl;
-    CROM_encoder(x, xdim, L, m_array, false);
+    enc.run();
 
-    int m_iter_idx;
-    for (m_iter_idx=0; m_iter_idx<L; m_iter_idx++) {
-        cout << m_array[m_iter_idx] << endl;
-    }
-    delete[] m_array;
+    enc.print_m_array();
     return 0;
 }
-
