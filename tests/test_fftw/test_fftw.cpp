@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fftw3.h>
 #include "../../utils/CROM_util.hpp"
-#define TEST_BLOCKLENGTH 16
+#define TEST_BLOCKLENGTH 32
 using namespace std;
 
 int main() {
@@ -9,7 +9,11 @@ int main() {
     double x[TEST_BLOCKLENGTH] = {1.1, 1.0, 1.0, 1.0,
                                   1.0, 1.0, 1.0, 1.0,
                                   1.0, 1.0, 1.0, 1.1,
-                                  1.0, 1.0, 1.0, 1.0};
+                                  1.0, 1.1, 1.0, 1.0,
+                                  1.1, 1.0, 0.0, 1.0,
+                                  1.0, 1.0, 0.2, 1.1,
+                                  1.0, 1.0, 1.3, 1.1,
+                                  1.0, 1.6, 1.0, 1.0};
     double xout[TEST_BLOCKLENGTH];
     int i;
     int xdim = TEST_BLOCKLENGTH;

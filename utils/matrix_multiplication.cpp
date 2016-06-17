@@ -34,7 +34,7 @@ void butterfly_matrix_multiplication (double *x,
     // mat_idx = 0 
     if (mat_idx == 0) {
         for (iter_idx=0; iter_idx<half_len; iter_idx++) {
-            x_idx = x_start_idx + half_len;
+            x_idx = x_start_idx + iter_idx;
             old_x[0] = x[x_idx];
             old_x[1] = x[x_idx+half_len];
             theta = thetas[theta_start_idx+iter_idx];

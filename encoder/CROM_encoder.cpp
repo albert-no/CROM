@@ -92,7 +92,6 @@ void CROM_encoder(double *x, int x_dim, int L, int *m_array, bool verbose) {
 
         // normalize after dct2
         normalize_then_copy_vector(x, x_out, x_dim);
-        scale *= scale_factor;
 
         // run CROM
         if (verbose) {
@@ -105,6 +104,8 @@ void CROM_encoder(double *x, int x_dim, int L, int *m_array, bool verbose) {
         l2norm = compute_l2(x, x_dim);
         l2norm /= n;
         printf("m = %d, l2norm = %f\n", m, l2norm);
+        // update scale with scale_factor
+        scale *= scale_factor;
     }
     fftw_destroy_plan(p);
     free(thetas);

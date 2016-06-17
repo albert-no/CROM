@@ -1,6 +1,6 @@
 #include <fstream>
-#define TEST_BLOCKLENGTH 16
-#define TEST_HALFBLOCKLENGTH 8
+#define TEST_BLOCKLENGTH 65536
+#define TEST_HALFBLOCKLENGTH 32768
 
 #include "../../encoder/CROM_encoder.hpp"
 #include "../../decoder/CROM_decoder.hpp"
@@ -11,7 +11,7 @@ int main() {
     double x_save[TEST_BLOCKLENGTH];
     double xhat[TEST_BLOCKLENGTH];
     double thetas[TEST_HALFBLOCKLENGTH];
-    double R = 1;
+    double R = 2;
     double doubleL;
     int xdim = TEST_BLOCKLENGTH;
     double n = static_cast<double> (xdim);
@@ -36,7 +36,7 @@ int main() {
     }
 
     cout << "Running CROM" << endl;
-    bool verbose = true;
+    bool verbose = false;
     cout << "Encoding" << endl;
     CROM_encoder(x, xdim, L, m_array, verbose);
 
