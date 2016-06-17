@@ -74,13 +74,11 @@ void print_vector(double *x, int x_dim) {
     printf("\n\n");
 }
 
-void normalize_vector(double *x, int x_dim) {
+void unnormalize_vector(double *x, int x_dim) {
     /*
-       Normalize vector after dct2
+       Unnormalize vector before idct2
 
-       DCT II of fftw3 is a standard one. In order to normalize it
-       (or make DCT-II matrix to be an orthogonal matrix), wwe need to scale
-       X_0 by \sqrt{1/n} and all other by \sqrt{2/N}.
+       reverse of normalize_then_copy_vector
 
        Input Parameters
        ______________-_
@@ -93,11 +91,61 @@ void normalize_vector(double *x, int x_dim) {
 
     int iter_idx;
     double n = static_cast <double> (x_dim);
+    double sqrtn = sqrt(1.0/n);
+    double halfsqrtn = sqrt(1.0/2.0/n);
+
+    x[0] = x[0] * sqrtn;
+    for (iter_idx=1; iter_idx<x_dim; iter_idx++) {
+        x[iter_idx] = x[iter_idx] * halfsqrtn;
+    }
+}
+
+void copy_vector(double *x, double *xout, int x_dim) {
+    /*
+       Copy vector
+
+       Input Parameters
+       ______________-_
+       x :: input vector
+       xout :: output of dct
+       x_dim :: dimension of x
+
+       Return Parameters
+       _________________
+    */
+
+    int iter_idx;
+
+    for (iter_idx=0; iter_idx<x_dim; iter_idx++) {
+        x[iter_idx] = xout[iter_idx];
+    }
+}
+
+void normalize_then_copy_vector(double *x, double *xout, int x_dim) {
+    /*
+       Normalize vector after dct2
+
+       DCT II of fftw3 is a standard one. In order to normalize it
+       (or make DCT-II matrix to be an orthogonal matrix), we need to scale
+       X_0 by \sqrt{1/n} and all other by \sqrt{2/N}.
+
+       Input Parameters
+       ______________-_
+       x :: input vector
+       xout :: output of dct
+       x_dim :: dimension of x
+
+       Return Parameters
+       _________________
+    */
+
+    int iter_idx;
+    double n = static_cast <double> (x_dim);
     double inverse_sqrtn = sqrt(1/4.0/n);
     double inverse_halfsqrtn = sqrt(1/2.0/n);
 
-    x[0] *= inverse_sqrtn;
+    x[0] = inverse_sqrtn * xout[0];
     for (iter_idx=1; iter_idx<x_dim; iter_idx++) {
-        x[iter_idx] *= inverse_halfsqrtn;
+        x[iter_idx] = inverse_halfsqrtn * xout[iter_idx];
     }
 }
