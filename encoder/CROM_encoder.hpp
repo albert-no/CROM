@@ -32,20 +32,35 @@ class CROM_encoder
     int *m_array;
     bool verbose;
 
-    // encoding step
+    // Single iteration of CROM_encoder with k=1
+    // scale :: scale factor of iteration
     int step(double scale);
 
 public:
+    // Constructor
     CROM_encoder(int x_dim_input, double R_input, bool verbose_input);
+
+    // Destructor
     ~CROM_encoder();
 
-    // TBD XXX we may want to update the way of reading x value
-    void read_x(std::string filename);
+    // set input vector x via copy from x_in
+    void set_x(double *x_in);
+
+    // read vector x via copying to x_copy
     void copy_x(double *x_copy);
+
+    // read m_array via copying to m_array_copy
     void copy_m_array(int *m_array_copy);
+
+    // get number of iterations L
     int get_L();
+
+    // run CROM encoder
     void run();
+
+    // print m_array
     void print_m_array();
+
     // TBD XXX we may want to print m_array to file
     // need m_array_file_name
     // we may want to have x_file as a class member
