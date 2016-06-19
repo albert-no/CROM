@@ -3,17 +3,57 @@
 */
 #include "CROM_decoder.hpp"
 
-void CROM_decoding_step(double *xhat, int x_dim, double scale, int m) {
-    /*
-       Single iteration of CROM encoder
-       Assume k=1
+// Constructor
+CROM_decoder::CROM_decoder(int x_dim_in, int L_in, bool verbose_in) {
+    x_dim = x_dim_in;
+    L = L_in;
+    verbose = verbose_in;
 
-       Input Parameters
-       ______________-_
-       x :: input vector
-       x_dim :: dimension of x
-       scale :: scale factor of iteration
+    int x_iter;
+    x_hat = new double[x_dim];
+    for (x_iter=0; x_iter<x_dim; x_iter++) {
+        x_hat[x_iter] = 0;
+    }
+    m_array = new int[L];
+}
+
+// Destructor
+CROM_decoder::~CROM_decoder() {
+    if (x_hat)
+        delete[] x_hat;
+    if (m_array)
+        delete[] m_array;
+}
+
+void CROM_decoder::set_m_array(int *m_array_in) {
+    /* set m_array
+
     */
+    int m_iter;
+    for (m_iter=0; m_iter<L; m_iter++) {
+        m_array[m_iter] = m_array_in[m_iter];
+    }
+}
+
+void CROM_decoder::copy_x_hat(double *x_hat_copy) {
+    /* copy x_hat
+
+    */
+    int x_iter;
+    for (x_iter=0; x_iter<x_dim; x_iter++) {
+        x_hat_copy[x_iter] = x_hat[x_iter];
+    }
+}
+
+void CROM_decoder::step(double scale, int m) {
+    /* Single iteration of CROM decoder with k=1
+
+       Parameters
+       ----------
+       scale :: scale factor of iteration
+       m :: message (index of maximum element)
+    */
+
     int max_idx;
     int iter_idx;
     double n = static_cast<double> (x_dim);
@@ -21,25 +61,17 @@ void CROM_decoding_step(double *xhat, int x_dim, double scale, int m) {
 
     offset = -sqrt(1.0/n/(n-1.0)) * scale;
     for (iter_idx=0; iter_idx<x_dim; iter_idx++) {
-        xhat[iter_idx] += offset;
+        x_hat[iter_idx] += offset;
     }
-    xhat[m] -= offset;
-    xhat[m] += (sqrt((n-1.0)/n)*scale);
+    x_hat[m] -= offset;
+    x_hat[m] += (sqrt((n-1.0)/n)*scale);
 }
 
-void CROM_decoder(double *xhat, int x_dim, int L, int *m_array, bool verbose) {
-    /*
-       CROM encoder
-       Assume k=1
+void CROM_decoder::run() {
+    /* Run CROM decoder with k=1
 
-       Input Parameters
-       ______________-_
-       xhat :: reconstruction vector
-               initialized with 0
-       x_dim :: dimension of x
-       L :: number of iterations
-       m_array :: array of massages
     */
+
     double n = static_cast<double> (x_dim);
     double logn = log(n);
     int long_logn = static_cast<int> (logn);
@@ -69,21 +101,21 @@ void CROM_decoder(double *xhat, int x_dim, int L, int *m_array, bool verbose) {
 
     // Set random seed for thetas
     fftw_plan p;
-    p = fftw_plan_r2r_1d(x_dim, xhat, x_out, FFTW_REDFT01, FFTW_MEASURE);
+    p = fftw_plan_r2r_1d(x_dim, x_hat, x_out, FFTW_REDFT01, FFTW_MEASURE);
     for (iter_idx=L-1; iter_idx>=0; iter_idx--) {
         printf("iteration = %d\n", iter_idx);
         mat_idx = iter_idx % long_logn;
 
         // Decoding step
         m = m_array[iter_idx];
-        CROM_decoding_step(xhat, x_dim, scale, m);
+        step(scale, m);
 
         // unnormalize before idct2
-        unnormalize_vector(xhat, x_dim);
+        unnormalize_vector(x_hat, x_dim);
         // run idct2
         fftw_execute(p);
         // copy x from xout
-        copy_vector(xhat, x_out, x_dim);
+        copy_vector(x_hat, x_out, x_dim);
 
         // generate thetas from random seed
         srand(iter_idx);
@@ -92,7 +124,7 @@ void CROM_decoder(double *xhat, int x_dim, int L, int *m_array, bool verbose) {
             thetas_inv[theta_idx] = -uni_rand * M_PI;
         }
         // multiply inverse butterfly matrix
-        butterfly_matrix_multiplication(xhat,
+        butterfly_matrix_multiplication(x_hat,
                                         thetas_inv,
                                         half_len,
                                         x_start_idx,
@@ -101,7 +133,7 @@ void CROM_decoder(double *xhat, int x_dim, int L, int *m_array, bool verbose) {
         // update scale with scale factor
         scale /= scale_factor;
         if (verbose) {
-            print_vector(xhat, x_dim);
+            print_vector(x_hat, x_dim);
         }
     }
     fftw_destroy_plan(p);
