@@ -4,7 +4,8 @@
 #include "CROM_encoder.hpp"
 
 // Constructor
-CROM_encoder::CROM_encoder(int x_dim_in, double R_in, bool verbose_in) {
+CROM_encoder::CROM_encoder(std::string name_in, int x_dim_in, double R_in, bool verbose_in) {
+    name = name_in;
     x_dim = x_dim_in;
     R = R_in;
     verbose = verbose_in;
@@ -26,18 +27,11 @@ CROM_encoder::~CROM_encoder() {
         delete[] m_array;
 }
 
-void CROM_encoder::read_x(std::string filename) {
-    /* Read x from given file
-
-    */
-
-    std::ifstream x_infile;
-    x_infile.open(filename.c_str());
-    int read_line_idx;
-    for (read_line_idx=0; read_line_idx<x_dim; read_line_idx++) {
-        x_infile >> x[read_line_idx];
+void CROM_encoder::set_x(double *x_in) {
+    int x_iter;
+    for (x_iter=0; x_iter<x_dim; x_iter++) {
+        x[x_iter] = x_in[x_iter];
     }
-    x_infile.close();
 }
 
 void CROM_encoder::copy_x(double *x_copy) {
@@ -59,13 +53,6 @@ void CROM_encoder::copy_m_array(int *m_array_copy) {
 }
 
 int CROM_encoder::step(double scale) {
-    /* Single iteration of CROM encoder with k=1
-
-        Parameters
-        ----------
-        scale :: scale factor of iteration
-    */
-
     int max_idx;
     int iter_idx;
     double n = static_cast<double> (x_dim);
@@ -83,9 +70,6 @@ int CROM_encoder::step(double scale) {
 
 
 void CROM_encoder::run() {
-    /* Run CROM encoder with k=1
-
-    */
     double n = static_cast<double> (x_dim);
     double logn = log(n);
     int long_logn = static_cast<int> (logn);
@@ -148,6 +132,7 @@ void CROM_encoder::run() {
         l2norm = compute_l2(x, x_dim);
         l2norm /= n;
         printf("m = %d, l2norm = %f\n", m, l2norm);
+
         // update scale with scale_factor
         scale *= scale_factor;
     }
@@ -157,12 +142,21 @@ void CROM_encoder::run() {
 }
 
 void CROM_encoder::print_m_array() {
-    /* Print message array
-
-    */
-
     int m_iter_idx;
     for (m_iter_idx=0; m_iter_idx<L; m_iter_idx++) {
         printf("%d\n", m_array[m_iter_idx]);
     }
+}
+
+void CROM_encoder::write_m_array() {
+    std::ofstream m_outfile;
+    std::string filename;
+
+    filename = "m_array_" + name + ".txt";
+    m_outfile.open(filename.c_str());
+    int line_idx;
+    for (line_idx=0; line_idx<L; line_idx++) {
+        m_outfile << m_array[line_idx] << std::endl;
+    }
+    m_outfile.close();
 }
