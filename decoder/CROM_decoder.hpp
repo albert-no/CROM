@@ -24,6 +24,8 @@ class CROM_decoder {
         x_dim :: dimension of x
         L :: number of iterations
         m_array :: array of massages
+        verbose :: whether printing intermediate values
+        name :: name of the object
     */
 
     double *x_hat;
@@ -31,16 +33,31 @@ class CROM_decoder {
     int L;
     int *m_array;
     bool verbose;
+    std::string name;
 
+    // Single iteration of CROM_decoder with k=1
+    // scale :: scale factor of iteration
+    // m :: message (index of maximum element) of iteration
     void step(double scale, int m);
 
 public:
-    CROM_decoder(int x_dim_in, int L_in, bool verbose_in);
+    // Constructor
+    CROM_decoder(std::string name_in, int x_dim_in, int L_in, bool verbose_in);
+
+    // Destructor
     ~CROM_decoder();
+
+    // set the array of messages (m_array) via copying from m_array_in
     void set_m_array(int *m_array_in);
+
+    // run CROM decoder
     void run();
+
+    // read x_hat via copying to x_hat_copy
     void copy_x_hat(double *x_hat_copy);
 
+    // write x_hat
+    void write_x_hat();
 };
 
 #endif

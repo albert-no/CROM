@@ -4,8 +4,8 @@
 #ifndef CROM_ENCODER_H
 #define CROM_ENCODER_H
 
-#include <cstdlib>
 #include <cmath>
+#include <cstdlib>
 #include <fstream>
 
 #include "../utils/CROM_util.hpp"
@@ -24,13 +24,15 @@ class CROM_encoder
         L :: number of iterations
         m_array :: array of massages
         verbose :: whether printing intermediate l2 norm
+        name :: name of the object
     */
     double *x;
-    double R;
     int x_dim;
+    double R;
     int L;
     int *m_array;
     bool verbose;
+    std::string name;
 
     // Single iteration of CROM_encoder with k=1
     // scale :: scale factor of iteration
@@ -38,12 +40,12 @@ class CROM_encoder
 
 public:
     // Constructor
-    CROM_encoder(int x_dim_input, double R_input, bool verbose_input);
+    CROM_encoder(std::string name_in, int x_dim_in, double R_in, bool verbose_in);
 
     // Destructor
     ~CROM_encoder();
 
-    // set input vector x via copy from x_in
+    // set input vector x via copying from x_in
     void set_x(double *x_in);
 
     // read vector x via copying to x_copy
@@ -61,10 +63,8 @@ public:
     // print m_array
     void print_m_array();
 
-    // TBD XXX we may want to print m_array to file
-    // need m_array_file_name
-    // we may want to have x_file as a class member
-
+    // write m_array
+    void write_m_array();
 };
 
 #endif

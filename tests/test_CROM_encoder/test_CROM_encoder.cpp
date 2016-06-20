@@ -13,8 +13,9 @@ int main() {
     int xdim = TEST_BLOCKLENGTH;
     bool verbose = false;
     ifstream x_infile;
+    string name = "test";
 
-    CROM_encoder enc (xdim, R, verbose);
+    CROM_encoder enc (name, xdim, R, verbose);
 
     cout << "reading x input" << endl;
     string string_fname = "../input/x_input.txt";
@@ -31,5 +32,6 @@ int main() {
     enc.run();
 
     enc.print_m_array();
+    enc.write_m_array();
     return 0;
 }

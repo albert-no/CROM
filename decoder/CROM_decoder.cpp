@@ -4,7 +4,8 @@
 #include "CROM_decoder.hpp"
 
 // Constructor
-CROM_decoder::CROM_decoder(int x_dim_in, int L_in, bool verbose_in) {
+CROM_decoder::CROM_decoder(std::string name_in, int x_dim_in, int L_in, bool verbose_in) {
+    name = name_in;
     x_dim = x_dim_in;
     L = L_in;
     verbose = verbose_in;
@@ -26,9 +27,6 @@ CROM_decoder::~CROM_decoder() {
 }
 
 void CROM_decoder::set_m_array(int *m_array_in) {
-    /* set m_array
-
-    */
     int m_iter;
     for (m_iter=0; m_iter<L; m_iter++) {
         m_array[m_iter] = m_array_in[m_iter];
@@ -36,9 +34,6 @@ void CROM_decoder::set_m_array(int *m_array_in) {
 }
 
 void CROM_decoder::copy_x_hat(double *x_hat_copy) {
-    /* copy x_hat
-
-    */
     int x_iter;
     for (x_iter=0; x_iter<x_dim; x_iter++) {
         x_hat_copy[x_iter] = x_hat[x_iter];
@@ -46,14 +41,6 @@ void CROM_decoder::copy_x_hat(double *x_hat_copy) {
 }
 
 void CROM_decoder::step(double scale, int m) {
-    /* Single iteration of CROM decoder with k=1
-
-       Parameters
-       ----------
-       scale :: scale factor of iteration
-       m :: message (index of maximum element)
-    */
-
     int max_idx;
     int iter_idx;
     double n = static_cast<double> (x_dim);
@@ -68,10 +55,6 @@ void CROM_decoder::step(double scale, int m) {
 }
 
 void CROM_decoder::run() {
-    /* Run CROM decoder with k=1
-
-    */
-
     double n = static_cast<double> (x_dim);
     double logn = log(n);
     int long_logn = static_cast<int> (logn);
@@ -139,4 +122,17 @@ void CROM_decoder::run() {
     fftw_destroy_plan(p);
     delete[] thetas_inv;
     delete[] x_out;
+}
+
+void CROM_decoder::write_x_hat() {
+    std::ofstream x_hat_outfile;
+    std::string filename;
+
+    filename = "x_hat_"+ name + ".txt";
+    x_hat_outfile.open(filename.c_str());
+    int line_idx;
+    for (line_idx=0; line_idx<x_dim; line_idx++) {
+        x_hat_outfile << x_hat[line_idx] << std::endl;
+    }
+    x_hat_outfile.close();
 }

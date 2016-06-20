@@ -4,7 +4,8 @@
 #include "CROM_encoder.hpp"
 
 // Constructor
-CROM_encoder::CROM_encoder(int x_dim_in, double R_in, bool verbose_in) {
+CROM_encoder::CROM_encoder(std::string name_in, int x_dim_in, double R_in, bool verbose_in) {
+    name = name_in;
     x_dim = x_dim_in;
     R = R_in;
     verbose = verbose_in;
@@ -145,4 +146,17 @@ void CROM_encoder::print_m_array() {
     for (m_iter_idx=0; m_iter_idx<L; m_iter_idx++) {
         printf("%d\n", m_array[m_iter_idx]);
     }
+}
+
+void CROM_encoder::write_m_array() {
+    std::ofstream m_outfile;
+    std::string filename;
+
+    filename = "m_array_" + name + ".txt";
+    m_outfile.open(filename.c_str());
+    int line_idx;
+    for (line_idx=0; line_idx<L; line_idx++) {
+        m_outfile << m_array[line_idx] << std::endl;
+    }
+    m_outfile.close();
 }
