@@ -8,9 +8,6 @@
 #include <cmath>
 #include <fftw3.h>
 
-#define BLOCKLENGTH 65536
-#define HALFBLOCKLENGTH 32768
-
 void butterfly_matrix_multiplication (double *x,
                                       double *thetas,
                                       int half_len,
