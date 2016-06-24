@@ -1,0 +1,12 @@
+# Compmiled source #
+####################
+*.o
+*.so
+
+# Output files#
+###############
+*.txt
+
+# Temporary files#
+##################
+*.swp
