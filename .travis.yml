@@ -1,0 +1,11 @@
+language: cpp
+compiler:
+    - g++
+os:
+    - linux
+before_install:
+    - sudo apt-get install libfftw3-dev libfftw3-doc
+script:
+    - cd /catch-tests
+    - make
+    - ./test_CROM.o
