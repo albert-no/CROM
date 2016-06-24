@@ -66,7 +66,7 @@ TEST_CASE("CROM_full small test", "[CROM_full]") {
             0.1219668209,
             0.23900423,
             0.825249401};
-        for (x_iter=0; x_iter<= xdim; x_iter++) {
+        for (x_iter=0; x_iter< xdim; x_iter++) {
             CHECK( xhat[x_iter] == Approx(xhat_expected[x_iter]).epsilon(EPSILON) );
         }
 
