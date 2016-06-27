@@ -33,6 +33,29 @@ void CROM_decoder::set_m_array(int *m_array_in) {
     }
 }
 
+void CROM_decoder::read_m_array(bool binary) {
+    std::string filename;
+    int line_idx;
+
+    // if binary flag is on
+    if (binary) {
+        filename = "m_array_" + name + ".bin";
+        std::ifstream m_infile (filename, std::ios::binary);
+        for (line_idx=0; line_idx<L; line_idx++) {
+            m_infile.read((char *)& m_array[line_idx], sizeof(m_array[line_idx]));
+        }
+        m_infile.close();
+    }
+    else {
+        filename = "m_array_" + name + ".txt";
+        std::ifstream m_infile (filename);
+        for (line_idx=0; line_idx<L; line_idx++) {
+            m_infile >> m_array[line_idx];
+        }
+        m_infile.close();
+    }
+}
+
 void CROM_decoder::copy_x_hat(double *x_hat_copy) {
     int x_iter;
     for (x_iter=0; x_iter<x_dim; x_iter++) {
