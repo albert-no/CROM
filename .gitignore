@@ -6,6 +6,7 @@
 # Output files#
 ###############
 *.txt
+*.bin
 
 # Temporary files#
 ##################
