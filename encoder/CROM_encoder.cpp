@@ -152,15 +152,26 @@ void CROM_encoder::print_m_array() {
     }
 }
 
-void CROM_encoder::write_m_array() {
-    std::ofstream m_outfile;
+void CROM_encoder::write_m_array(bool binary) {
     std::string filename;
-
-    filename = "m_array_" + name + ".txt";
-    m_outfile.open(filename.c_str());
     int line_idx;
-    for (line_idx=0; line_idx<L; line_idx++) {
-        m_outfile << m_array[line_idx] << std::endl;
+
+    // if binary flag is on
+    if (binary) {
+        filename = "m_array_" + name + ".bin";
+        std::ofstream m_outfile (filename, std::ios::binary);
+        for (line_idx=0; line_idx<L; line_idx++) {
+            m_outfile.write((char *)& m_array[line_idx], sizeof(m_array[line_idx]));
+        }
+        m_outfile.close();
     }
-    m_outfile.close();
+    else {
+        filename = "m_array_" + name + ".txt";
+        std::ofstream m_outfile;
+        m_outfile.open(filename.c_str());
+        for (line_idx=0; line_idx<L; line_idx++) {
+            m_outfile << m_array[line_idx] << std::endl;
+        }
+        m_outfile.close();
+    }
 }

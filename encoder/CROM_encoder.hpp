@@ -7,6 +7,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <fstream>
+#include <iostream>
 
 #include "../utils/CROM_util.hpp"
 #include "../utils/matrix_multiplication.hpp"
@@ -64,7 +65,7 @@ public:
     void print_m_array();
 
     // write m_array
-    void write_m_array();
+    void write_m_array(bool binary);
 };
 
 #endif
