@@ -146,6 +146,7 @@ TEST_CASE("CROM_full small test", "[CROM_full]") {
         double *l2_array_copy = new double[L];
         enc.copy_l2_array(l2_array_copy);
         CHECK( l2dist == Approx(l2_array_copy[L-1]) );
+        delete[] l2_array_copy;
     }
 }
 
