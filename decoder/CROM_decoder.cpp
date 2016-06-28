@@ -109,7 +109,9 @@ void CROM_decoder::run() {
     fftw_plan p;
     p = fftw_plan_r2r_1d(x_dim, x_hat, x_out, FFTW_REDFT01, FFTW_MEASURE);
     for (iter_idx=L-1; iter_idx>=0; iter_idx--) {
-        printf("iteration = %d\n", iter_idx);
+        if (verbose) {
+            printf("iteration = %d\n", iter_idx);
+        }
         mat_idx = iter_idx % long_logn;
 
         // Decoding step
