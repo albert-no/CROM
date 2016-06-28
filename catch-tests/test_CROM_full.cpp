@@ -11,6 +11,8 @@ using namespace std;
 TEST_CASE("CROM_full small test", "[CROM_full]") {
     double R = 1;
     int xdim = TEST_BLOCKLENGTH;
+    bool verbose = false;
+    string name = "full_test";
     double x[TEST_BLOCKLENGTH] = {
         -0.769811, 0.186957,
         -0.0782989, 0.446422,
@@ -26,9 +28,9 @@ TEST_CASE("CROM_full small test", "[CROM_full]") {
         -0.0086511553, 0.375842363,
         -0.5104244858, 0.1219668209,
         0.23900423, 0.825249401};
-    bool verbose = false;
+
+    std::vector<int> v_m_arr_expected {3, 1, 1};
     double xhat[TEST_BLOCKLENGTH];
-    string name = "full_test";
 
     CROM_encoder enc (name, xdim, R, verbose);
     int x_iter;
@@ -47,10 +49,10 @@ TEST_CASE("CROM_full small test", "[CROM_full]") {
         int *m_array_copy = new int[L];
         enc.copy_m_array(m_array_copy);
         std::vector<int> v_m_arr(m_array_copy, m_array_copy+L);
-        std::vector<int> v_m_arr_expected {3, 1, 1};
         CHECK( v_m_arr == v_m_arr_expected );
 
         // check print_m_array
+        printf("Test print_m_array\n");
         enc.print_m_array();
 
         // decoding and set m_array
@@ -68,7 +70,7 @@ TEST_CASE("CROM_full small test", "[CROM_full]") {
         // check write_x_hat
         dec.write_x_hat();
 
-        // check final l2 idtance between xhat and x
+        // check final l2 distance between xhat and x
         double l2dist;
         l2dist = compute_l2_dist(x_save, xhat, xdim);
         l2dist /= static_cast<double> (xdim);
@@ -79,21 +81,12 @@ TEST_CASE("CROM_full small test", "[CROM_full]") {
         // read and store original x
         enc.set_x(x);
         enc.copy_x(x_save);
-
-        // check L
         int L = enc.get_L();
-        CHECK( L == 3 );
 
-        // encoding and check m_array
+        // encoding
         enc.run();
-        int *m_array_copy = new int[L];
-        enc.copy_m_array(m_array_copy);
-        std::vector<int> v_m_arr(m_array_copy, m_array_copy+L);
-        std::vector<int> v_m_arr_expected {3, 1, 1};
-        CHECK( v_m_arr == v_m_arr_expected );
-        delete[] m_array_copy;
 
-        // check print_m_array and write_m_array
+        // check write_m_array
         enc.write_m_array(false);  // txt file
 
         // decoding and set m_array
@@ -110,7 +103,7 @@ TEST_CASE("CROM_full small test", "[CROM_full]") {
         // check write_x_hat
         dec.write_x_hat();
 
-        // check final l2 idtance between xhat and x
+        // check final l2 distance between xhat and x
         double l2dist;
         l2dist = compute_l2_dist(x_save, xhat, xdim);
         l2dist /= static_cast<double> (xdim);
@@ -121,19 +114,10 @@ TEST_CASE("CROM_full small test", "[CROM_full]") {
         // read and store original x
         enc.set_x(x);
         enc.copy_x(x_save);
-
-        // check L
         int L = enc.get_L();
-        CHECK( L == 3 );
 
         // encoding and check m_array
         enc.run();
-        int *m_array_copy = new int[L];
-        enc.copy_m_array(m_array_copy);
-        std::vector<int> v_m_arr(m_array_copy, m_array_copy+L);
-        std::vector<int> v_m_arr_expected {3, 1, 1};
-        CHECK( v_m_arr == v_m_arr_expected );
-        delete[] m_array_copy;
 
         // write_m_array in binary file
         enc.write_m_array(true);
@@ -152,11 +136,16 @@ TEST_CASE("CROM_full small test", "[CROM_full]") {
         // check write_x_hat
         dec.write_x_hat();
 
-        // check final l2 idtance between xhat and x
+        // check final l2 distance between xhat and x
         double l2dist;
         l2dist = compute_l2_dist(x_save, xhat, xdim);
         l2dist /= static_cast<double> (xdim);
         CHECK( l2dist == Approx(0.2819860781) );
+
+        // compare final l2 distance and encoder's l2_array
+        double *l2_array_copy = new double[L];
+        enc.copy_l2_array(l2_array_copy);
+        CHECK( l2dist == Approx(l2_array_copy[L-1]) );
     }
 }
 
