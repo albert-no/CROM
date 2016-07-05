@@ -1,22 +1,7 @@
-/*
-   CROM_util.cpp
-*/
+// CROM_util.cpp
 #include "CROM_util.hpp"
 
 int find_max_index(double *x, int x_dim) {
-    /* Find the index of maximum element
-
-       Parameters
-       ----------
-       x :: input vector
-       x_dim :: dimension of x
-       scale :: scale factor of iteration
-
-       Returns
-       -------
-       max_idx :: index of maximum element
-    */
-
     int iter_idx;
     int max_idx = 0;
     double max_val = x[0];
@@ -31,18 +16,6 @@ int find_max_index(double *x, int x_dim) {
 }
 
 double compute_l2(double *x, int x_dim) {
-    /* Computes l2 norm of the vector
-
-       Parameters
-       ----------
-       x :: input vector
-       x_dim :: dimension of x
-
-       Returns
-       -------
-       l2norm :: l2norm
-    */
-
     int iter_idx;
     double l2norm = 0;
 
@@ -53,39 +26,18 @@ double compute_l2(double *x, int x_dim) {
 }
 
 double compute_l2_dist(double *x, double *x_hat, int x_dim) {
-    /* Computes l2 distance of vectors
-
-       Parameters
-       ----------
-       x :: input vector
-       x_hat :: another input vector
-       x_dim :: dimension of x
-
-       Returns
-       -------
-       l2norm :: l2norm
-    */
-
     int iter_idx;
-    double l2norm = 0;
+    double l2dist = 0;
     double diff;
 
     for (iter_idx=0; iter_idx<x_dim; iter_idx++) {
         diff = x_hat[iter_idx] - x[iter_idx];
-        l2norm += (diff * diff);
+        l2dist += (diff * diff);
     }
-    return l2norm;
+    return l2dist;
 }
 
 void print_vector(double *x, int x_dim) {
-    /* Print vector
-
-       Parameters
-       ----------
-       x :: input vector
-       x_dim :: dimension of x
-    */
-
     int iter_idx;
     for (iter_idx=0; iter_idx<x_dim; iter_idx++) {
         printf("%6.3f, ", x[iter_idx]);
@@ -94,17 +46,6 @@ void print_vector(double *x, int x_dim) {
 }
 
 void unnormalize_vector(double *x, int x_dim) {
-    /* Unnormalize vector before idct2
-
-       reverse of normalize_then_copy_vector
-
-       Parameters
-       ----------
-       x :: input vector
-       x_dim :: dimension of x
-
-    */
-
     int iter_idx;
     double n = static_cast <double> (x_dim);
     double sqrtn = sqrt(1.0/n);
@@ -117,15 +58,6 @@ void unnormalize_vector(double *x, int x_dim) {
 }
 
 void copy_vector(double *x, double *xout, int x_dim) {
-    /* Copy vector
-
-       Parameters
-       ----------
-       x :: input vector
-       xout :: output of dct
-       x_dim :: dimension of x
-    */
-
     int iter_idx;
 
     for (iter_idx=0; iter_idx<x_dim; iter_idx++) {
@@ -134,19 +66,6 @@ void copy_vector(double *x, double *xout, int x_dim) {
 }
 
 void normalize_then_copy_vector(double *x, double *xout, int x_dim) {
-    /* Normalize vector after dct2
-
-       DCT II of fftw3 is a standard one. In order to normalize it
-       (or make DCT-II matrix to be an orthogonal matrix), we need to scale
-       X_0 by \sqrt{1/n} and all other by \sqrt{2/N}.
-
-       Parameters
-       ----------
-       x :: input vector
-       xout :: output of dct
-       x_dim :: dimension of x
-    */
-
     int iter_idx;
     double n = static_cast <double> (x_dim);
     double inverse_sqrtn = sqrt(1/4.0/n);
