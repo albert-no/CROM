@@ -125,12 +125,9 @@ void CROM_decoder::run() {
         // copy x from xout
         copy_vector(x_hat, x_out, x_dim);
 
-        // generate thetas from random seed
-        srand(iter_idx);
-        for (theta_idx=0; theta_idx<half_len; theta_idx++) {
-            uni_rand = static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
-            thetas_inv[theta_idx] = -uni_rand * M_PI;
-        }
+        // generate thetas for decoder (sign=false) from random seed=iter_idx
+        generate_theta_from_seed(thetas_inv, half_len, iter_idx, false);
+
         // multiply inverse butterfly matrix
         butterfly_matrix_multiplication(x_hat,
                                         thetas_inv,

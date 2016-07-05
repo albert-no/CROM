@@ -116,12 +116,8 @@ void CROM_encoder::run() {
         }
         mat_idx = iter_idx % long_logn;
 
-        // generate thetas from random seed
-        srand(iter_idx);
-        for (theta_idx=0; theta_idx<half_len; theta_idx++) {
-            uni_rand = static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
-            thetas[theta_idx] = uni_rand * M_PI;
-        }
+        // generate thetas for encoder (sign=true) with random seed=iter_idx
+        generate_theta_from_seed(thetas, half_len, iter_idx, true);
 
         // multiply butterfly matrix
         butterfly_matrix_multiplication(x,

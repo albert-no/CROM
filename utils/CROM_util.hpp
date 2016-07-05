@@ -3,6 +3,7 @@
 #define CROM_UTIL_H
 
 #include <cmath>
+#include <cstdlib>
 #include <iostream>
 #include <stdio.h>
 
@@ -82,5 +83,17 @@ void copy_vector(double *x, double *xout, int x_dim);
    x_out :: output vector
    x_dim :: dimension of x */
 void normalize_then_copy_vector(double *x, double *xout, int x_dim);
+
+/* Generate thetas from random seed
+
+   Use sign=False for decoder. This generates the inverse butterfly matrix.
+
+   Parameters
+   ----------
+   thetas :: array of theta
+   theta_dim :: dimension of thetas
+   seed :: random seed
+   sign :: sign of theta */
+void generate_theta_from_seed(double *thetas, int theta_dim, int seed, bool sign);
 
 #endif

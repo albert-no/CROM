@@ -76,3 +76,17 @@ void normalize_then_copy_vector(double *x, double *xout, int x_dim) {
         x[iter_idx] = inverse_halfsqrtn * xout[iter_idx];
     }
 }
+
+void generate_theta_from_seed(double *thetas, int theta_dim, int seed, bool sign) {
+    int theta_idx;
+    double uni_rand;
+    double double_sign;
+
+    double_sign = (sign) ? 1.0 : -1.0;
+
+    srand(seed);
+    for (theta_idx=0; theta_idx<theta_dim; theta_idx++) {
+        uni_rand = static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
+        thetas[theta_idx] = double_sign * uni_rand * M_PI;
+    }
+}
