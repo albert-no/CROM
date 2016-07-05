@@ -5,7 +5,6 @@
 #define CROM_ENCODER_H
 
 #include <cmath>
-#include <cstdlib>
 #include <fstream>
 #include <iostream>
 
