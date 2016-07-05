@@ -6,6 +6,7 @@
 
 #include <cstdlib>
 #include <cmath>
+#include <iostream>
 #include <fstream>
 
 #include "../utils/matrix_multiplication.hpp"
@@ -49,6 +50,9 @@ public:
 
     // set the array of messages (m_array) via copying from m_array_in
     void set_m_array(int *m_array_in);
+
+    // read the array of messages (m_array) from either binary or txt file
+    void read_m_array(bool binary);
 
     // run CROM decoder
     void run();

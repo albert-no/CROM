@@ -5,8 +5,8 @@
 #define CROM_ENCODER_H
 
 #include <cmath>
-#include <cstdlib>
 #include <fstream>
+#include <iostream>
 
 #include "../utils/CROM_util.hpp"
 #include "../utils/matrix_multiplication.hpp"
@@ -23,6 +23,7 @@ class CROM_encoder
         R :: rate
         L :: number of iterations
         m_array :: array of massages
+        l2_array :: array of l2norms after each step 
         verbose :: whether printing intermediate l2 norm
         name :: name of the object
     */
@@ -31,6 +32,7 @@ class CROM_encoder
     double R;
     int L;
     int *m_array;
+    double *l2_array;
     bool verbose;
     std::string name;
 
@@ -54,6 +56,9 @@ public:
     // read m_array via copying to m_array_copy
     void copy_m_array(int *m_array_copy);
 
+    // read l2_array via copying to l2_array_copy
+    void copy_l2_array(double *l2_array_copy);
+
     // get number of iterations L
     int get_L();
 
@@ -64,7 +69,7 @@ public:
     void print_m_array();
 
     // write m_array
-    void write_m_array();
+    void write_m_array(bool binary);
 };
 
 #endif

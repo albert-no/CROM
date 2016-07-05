@@ -33,6 +33,29 @@ void CROM_decoder::set_m_array(int *m_array_in) {
     }
 }
 
+void CROM_decoder::read_m_array(bool binary) {
+    std::string filename;
+    int line_idx;
+
+    // if binary flag is on
+    if (binary) {
+        filename = "m_array_" + name + ".bin";
+        std::ifstream m_infile (filename, std::ios::binary);
+        for (line_idx=0; line_idx<L; line_idx++) {
+            m_infile.read((char *)& m_array[line_idx], sizeof(m_array[line_idx]));
+        }
+        m_infile.close();
+    }
+    else {
+        filename = "m_array_" + name + ".txt";
+        std::ifstream m_infile (filename);
+        for (line_idx=0; line_idx<L; line_idx++) {
+            m_infile >> m_array[line_idx];
+        }
+        m_infile.close();
+    }
+}
+
 void CROM_decoder::copy_x_hat(double *x_hat_copy) {
     int x_iter;
     for (x_iter=0; x_iter<x_dim; x_iter++) {
@@ -86,7 +109,9 @@ void CROM_decoder::run() {
     fftw_plan p;
     p = fftw_plan_r2r_1d(x_dim, x_hat, x_out, FFTW_REDFT01, FFTW_MEASURE);
     for (iter_idx=L-1; iter_idx>=0; iter_idx--) {
-        printf("iteration = %d\n", iter_idx);
+        if (verbose) {
+            printf("iteration = %d\n", iter_idx);
+        }
         mat_idx = iter_idx % long_logn;
 
         // Decoding step
@@ -100,12 +125,9 @@ void CROM_decoder::run() {
         // copy x from xout
         copy_vector(x_hat, x_out, x_dim);
 
-        // generate thetas from random seed
-        srand(iter_idx);
-        for (theta_idx=0; theta_idx<half_len; theta_idx++) {
-            uni_rand = static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
-            thetas_inv[theta_idx] = -uni_rand * M_PI;
-        }
+        // generate thetas for decoder (sign=false) from random seed=iter_idx
+        generate_theta_from_seed(thetas_inv, half_len, iter_idx, false);
+
         // multiply inverse butterfly matrix
         butterfly_matrix_multiplication(x_hat,
                                         thetas_inv,
