@@ -70,7 +70,7 @@ TEST_CASE("CROM_full small big", "[CROM_full]") {
         // check write_x_hat
         dec.write_x_hat();
 
-        // check final l2 idtance between xhat and x
+        // check final l2 distance between xhat and x
         double l2dist;
         l2dist = compute_l2_dist(x_save, xhat, xdim);
         l2dist /= static_cast<double> (xdim);
