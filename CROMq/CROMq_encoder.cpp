@@ -1,57 +1,161 @@
 // CROMq_encoder.cpp
 #include "CROMq_encoder.hpp"
 
-CROMq_encoder::CROM_encoder(std::string name,
+CROMq_encoder::CROMq_encoder(std::string name,
                             std::string fname_in,
                             int num_x_in,
-                            int x_dim_in,
-                            double *std_array_in,
-                            double *R_array_in) {
+                            int x_dim_in) {
     name = name_in;
     fname = fname_in;
     num_x = num_x_in;
     x_dim = x_dim_in;
 
-    int sub_iter;
-    R_array = new double[num_x];
+    int row_idx;
+
     std_array = new double[num_x];
-    for (sub_iter=0; sub_iter<num_x; sub_iter++) {
-        std_array[sub_iter] = std_array_in[sub_iter];
-        R_array[sub_iter] = R_array_in[sub_iter];
-    }
+    mu_array = new double[num_x];
+    R_array = new double[num_x];
+
+    x_array = new double*[x_dim];
+    for(row_idx=0; row_idx<x_dim; row_idx++)
+        x_array[row_idx] = new double[num_x];
+
+    cov = new double*[num_x];
+    for(row_idx=0; row_idx<num_x; row_idx++)
+        cov[row_idx] = new double[num_x];
 }
 
 CROMq_encoder::~CROMq_encoder() {
-    if (R_array) {
+    if (R_array)
         delete[] R_array;
-    }
-    if (std_array) {
+    if (std_array)
         delete[] std_array;
+    if (mu)
+        delete[] mu;
+    if (x_array) {
+        for(int row_idx=0; row_idx<x_dim; row_idx++)
+            delete[] x_array[row_idx];
+        delete[] x_array;
+    }
+    if (cov) {
+        for (int cov_idx=0; cov_idx<num_x; cov_idx++)
+            delete[] cov[cov_idx];
+        delete[] cov;
     }
 }
 
-void CROMq_encoder::run() {
-    /* read x_array from file
-       x_array[i] will be an x_dim-dimensional array that contains i-th
-       subsequence. Note that the x_array will be look like the transpose of
-       input file. */
-    double *x_array;
-    x_array = new double[num_x][x_dim];
+void CROMq_encoder::allocate_rate() {
+    /* Allocate rate according to the std_array
+
+       Assuming D = e^{-1.4R} */
+}
+
+void CROMq_encoder::get_q_scores_and_mu(double** q_scores) {
+    /* Read q_array from file
+       convert char type to double */
+
+    int row_idx = 0;
+    int col_idx = 0;
+    int subseq_idx;
+    char qval;
+    double value;
+
     std::ifstream file(fname);
     std::string line;
-    int row_idx = 0;
-    int subseq_idx;
-    double value;
-    while(std::getline(file, line)) {
+
+    // initialize mu
+    for (col_idx=0; col_idx<num_x; col_idx++)
+        mu[col_idx] = 0;
+
+    while (std::getline(file, line)) {
         std::stringstream lineStream(line);
         subseq_idx = 0;
-        while(lineStream >> value) {
-            // normalize with std so that x_array contains N(0,1)
-            x_array[subseq_idx][row_idx] = value / std_array[subseq_idx];
+        while(lineStream >> qval) {
+            // convert charactor to double
+            value = (double)qval;
+            q_array[row_idx][subseq_idx] = value;
+
+            // update mu vector
+            mu[subseq_idx] += value;
             subseq_idx++;
         }
         row_idx++;
     }
+    // close file
+    file.close();
+
+    // normalize mu
+    for (col_idx=0; col_idx<num_x; col_idx++)
+        mu[col_idx] /= x_dim;
+}
+
+void CROMq_encoder::get_cov(double** q_scores) {
+
+    int row_idx, idx1, idx2;
+    double q_temp = new double[num_x];
+
+    // initialize cov
+    for (idx1=0; idx1<num_x; idx1++)
+        for(idx2=0; idx2<num_x; idx2++)
+            cov[idx1][idx2] = 0;
+
+    for (row_idx=0; row_idx<x_dim; row_idx++) {
+        // subtract mu from q_scores first
+        for (idx1=0; idx1<num_x; idx1++)
+            q_temp[idx1] = q_scores[row_idx][idx1] - mu[idx1];
+
+        // note: (estimated) covariance matrix is symmetric
+        for (idx1=0; idx1<num_x; idx1++) {
+            for(idx2=0; idx2<=idx1; idx2++) {
+                cov[idx1][idx2] += q_temp[idx1] * q_temp[idx2];
+            }
+        }
+    }
+
+    // normalize cov
+    for (idx1=0; idx1<num_x; idx1++)
+        for(idx2=0; idx2<num_x; idx2++)
+            cov[idx1][idx2] /= x_dim;
+
+    // free q_temp
+    delete[] q_temp;
+}
+
+void CROMq_encoder::get_x_array() {
+    /* Read q_scores from file
+       Then do SVD and extract R_array, and std_array
+       Then convert it to x_array
+       x_array[i] will be an x_dim-dimensional array that contains i-th
+       subsequence. Note that the x_array will be look like the transpose of
+       input file. */
+
+    double** q_scores;
+    int row_idx;
+
+    //allocate memory
+    q_scores = new double* [x_dim];
+    for (row_idx=0; row_idx<x_dim; row_idx++)
+        q_scores[row_idx] = new double[num_x];
+
+    // get q_scores and update mu vector
+    get_q_scores_and_mu(q_scores);
+
+    // get cov
+    get_cov(q_scores);
+
+    // XXX TBD do SVD
+
+    // get x_array (normalized q score)
+    get_x_array(q_scores);
+
+    // free q_scores array
+    for (row_idx=0; row_idx<x_dim; row_idx++)
+        delete [] q_scores[row_idx];
+    delete[] q_scores;
+}
+
+
+void CROMq_encoder::run() {
 
     std::string subname;
     for (subseq_idx=0; subseq_idx<num_x; subseq_idx++) {
@@ -67,10 +171,4 @@ void CROMq_encoder::run() {
         // write m_array in binary file
         subenc.write_m_array(true);
     }
-
-    // close file
-    file.close();
-
-    // clear the array
-    delete[] x_array;
 }

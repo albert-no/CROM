@@ -21,16 +21,32 @@ class CROMq_encoder
     name :: name of the object
     fname :: name of the file contains sequences
     num_x :: number of sequences, default = 101
-    R_array :: num_x dimension array that contains rate of subsequences
+    x_dim :: dimension of each sequence
 
+    std_array :: num_x dimension array that contains std of subsequences
+    R_array :: num_x dimension array that contains rate of subsequences
+    x_array :: x_dim * num_x dimension array that contains subsequences
     */
+
     std::string name;
     std::string fname;
     int num_x;
     int x_dim;
-    double *std_array;
-    double *R_array;
 
+    double* mu;
+    double** cov;
+    double* std_array;
+    double* R_array;
+    double** x_array;
+
+    // Allocate rate according to the std_array
+    void allocate_rate();
+
+    // Get x_array();
+    void get_x_array();
+
+    // Get covariance matrix
+    void get_cov();
 
 
 public:
