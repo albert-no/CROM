@@ -5,7 +5,8 @@ CROMq_encoder::CROMq_encoder(std::string name,
                             std::string fname_in,
                             int num_x_in,
                             int x_dim_in,
-                            double rd_param_in) {
+                            double rd_param_in,
+                            double R_overall_in) {
     int row_idx;
 
     name = name_in;
@@ -13,6 +14,7 @@ CROMq_encoder::CROMq_encoder(std::string name,
     num_x = num_x_in;
     x_dim = x_dim_in;
     rd_param = rd_param_in;
+    R_overall= R_overall_in;
 
     std_array = new double[num_x];
     mu_array = new double[num_x];
@@ -57,12 +59,6 @@ CROMq_encoder::~CROMq_encoder() {
     }
 }
 
-void CROMq_encoder::allocate_rate() {
-    /* Allocate rate according to the std_array
-
-       Assuming D = e^{-1.4R} */
-}
-
 void CROMq_encoder::get_q_scores_and_mu(double** q_scores) {
     /* Read q_array from file
        convert char type to double */
@@ -99,7 +95,7 @@ void CROMq_encoder::get_q_scores_and_mu(double** q_scores) {
 
     // normalize mu
     for (col_idx=0; col_idx<num_x; col_idx++)
-        mu[col_idx] /= x_dim;
+        mu[col_idx] /= (double) x_dim;
 }
 
 void CROMq_encoder::get_cov(double** q_scores) {
@@ -128,7 +124,7 @@ void CROMq_encoder::get_cov(double** q_scores) {
     // normalize cov
     for (idx1=0; idx1<num_x; idx1++)
         for(idx2=0; idx2<num_x; idx2++)
-            cov[idx1][idx2] /= x_dim;
+            cov[idx1][idx2] /= (double) x_dim;
 
     // free q_temp
     delete[] q_temp;
@@ -152,6 +148,22 @@ void CROMq_encoder::do_svd() {
         std_array[row_idx] = sValues()(row_idx);
         for (col_idx=0; col_idx<num_x; col_idx++) {
             v_mat[row_idx][col_idx] = vMatrix(row_idx, col_idx);
+        }
+    }
+}
+
+void normalize_q_scores(double** q_scores) {
+    /* normalize q_scores with mu vector and V matrix*/
+    int row_idx, col_idx, tmp_idx;
+    for (row_idx=0; row_idx<x_dim; row_idx++) {
+        for(col_idx=0; col_idx<num_x; col_idx++) {
+            x_array[row_idx][col_idx] = 0;
+            // compute V * (Q-mu)
+            for(tmp_idx=0; tmp_idx<num_x; tmp_idx++) {
+                x_array[row_idx][col_idx] += v_mat[col_idx][tmp_idx] * (q_scores[row_idx][tmp_idx] - mu[tmp_idx]);
+            }
+            // normalize with std_array
+            x_array[row_idx][col_idx] /=  std_array[col_idx];
         }
     }
 }
@@ -181,8 +193,8 @@ void CROMq_encoder::get_x_array() {
     // do SVD
     do_svd();
 
-    // get x_array (normalized q score)
-    get_x_array(q_scores);
+    // normalized q score. this sets x_array
+    normalize_q_scores(q_scores);
 
     // free q_scores array
     for (row_idx=0; row_idx<x_dim; row_idx++)
@@ -190,6 +202,38 @@ void CROMq_encoder::get_x_array() {
     delete[] q_scores;
 }
 
+void CROMq_encoder::allocate_rate() {
+    /* Allocate rate according to the std_array
+       Assuming D = e^{-1.4R} */
+
+    double* log_var_array = new double[num_x];
+    double sum_var_std = 0;
+    double logD;
+    int idx;
+
+    for (idx=0; idx<num_x; idx++) {
+        log_var_array[idx] = 2 * log(std_array[idx]);
+        sum_log_var += log_var_array[idx];
+    }
+
+    for (num_nonzero_rate=num_x; num_nonzero_rate>0; num_nonzero_rate--) {
+        // solve :: (1/num_x) \sum log(sigma_i^2/D) = rd_param * R
+        logD = sum_log_var / (double)num_x - rd_param * R_overall;
+        if (logD <= log_var_array[num_nonzero_rate-1]) {
+            for (idx=0; idx<num_nonzero_rate; idx++) {
+                // allocate rates with following rule
+                // R_i = (1/rd_param) * log(sigma^2/D)
+                R_array[idx] = (log_var_array[idx] - logD) / rd_param;
+            }
+            break;
+        }
+
+        // assign zero rate for those subsequence with low variance
+        R_array[num_nonzero_rate-1] = 0;
+    }
+
+    delete[] log_var_array;
+}
 
 void CROMq_encoder::run() {
 

@@ -2,10 +2,11 @@
 #ifndef CROMQ_ENCODER_H
 #define CROMQ_ENCODER_H
 
-#include <string>
 #include <fstream>
-#include <sstream>
 #include <iostream>
+#include <math>
+#include <sstream>
+#include <string>
 
 #include <Eigen/SVD>
 
@@ -25,6 +26,7 @@ class CROMq_encoder
     num_x :: number of sequences, default = 101
     x_dim :: dimension of each sequence
     rd_param :: assuming D = e^{-rd_param * R}, default = 1.4
+    R_overall :: overall rate R of CROMq
 
     std_array :: num_x dimension array that contains std of subsequences
     R_array :: num_x dimension array that contains rate of subsequences
@@ -36,6 +38,7 @@ class CROMq_encoder
     int num_x;
     int x_dim;
     double rd_param;
+    double R_overall;
 
     // Extract from original q scores
     double* mu;
@@ -50,6 +53,9 @@ class CROMq_encoder
 
     // Allocated rates
     double* R_array;
+
+    // Number of nonzero rate
+    int num_nonzero_rate;
 
 
     // Allocate rate according to the std_array
@@ -68,7 +74,7 @@ class CROMq_encoder
 public:
     // Constructor
     CROMq_encoder(std::string name_in, std::string fname_in, int num_x_in,
-                  int x_dim_in, double rd_param_in);
+                  int x_dim_in, double rd_param_in, double R_overall_in);
 
     // Destructor
     ~CROMq_encoder();
