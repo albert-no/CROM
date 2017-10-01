@@ -5,41 +5,52 @@ CROMq_encoder::CROMq_encoder(std::string name,
                             std::string fname_in,
                             int num_x_in,
                             int x_dim_in) {
+    int row_idx;
+
     name = name_in;
     fname = fname_in;
     num_x = num_x_in;
     x_dim = x_dim_in;
 
-    int row_idx;
-
     std_array = new double[num_x];
     mu_array = new double[num_x];
     R_array = new double[num_x];
 
-    x_array = new double*[x_dim];
-    for(row_idx=0; row_idx<x_dim; row_idx++)
-        x_array[row_idx] = new double[num_x];
-
     cov = new double*[num_x];
     for(row_idx=0; row_idx<num_x; row_idx++)
         cov[row_idx] = new double[num_x];
+
+    v_mat = new double*[num_x];
+    for(row_idx=0; row_idx<num_x; row_idx++)
+        v_mat[row_idx] = new double[num_x];
+
+    x_array = new double*[x_dim];
+    for(row_idx=0; row_idx<x_dim; row_idx++)
+        x_array[row_idx] = new double[num_x];
 }
 
 CROMq_encoder::~CROMq_encoder() {
+    int row_idx;
     if (R_array)
         delete[] R_array;
     if (std_array)
         delete[] std_array;
     if (mu)
         delete[] mu;
+
     if (x_array) {
-        for(int row_idx=0; row_idx<x_dim; row_idx++)
+        for(row_idx=0; row_idx<x_dim; row_idx++)
             delete[] x_array[row_idx];
         delete[] x_array;
     }
+    if (v_mat) {
+        for (row_idx=0; row_idx<num_x; row_idx++)
+            delete[] v_mat[row_idx];
+        delete[] v_mat;
+    }
     if (cov) {
-        for (int cov_idx=0; cov_idx<num_x; cov_idx++)
-            delete[] cov[cov_idx];
+        for (row_idx=0; row_idx<num_x; row_idx++)
+            delete[] cov[row_idx];
         delete[] cov;
     }
 }
@@ -121,6 +132,28 @@ void CROMq_encoder::get_cov(double** q_scores) {
     delete[] q_temp;
 }
 
+void CROMq_encoder::do_svd() {
+    int row_idx, col_idx;
+    MatrixXf cov_eigen;
+    MatrixXf sValues, vMatrix;
+
+    for (row_idx=0; row_idx<num_x; row_idx++) {
+        for (col_idx=0; col_idx<num_x; col_idx++) {
+            cov_eigen(row_idx, col_idx) = cov[row_idx][col_idx];
+        }
+    }
+    JacobiSVD<MatrixXf> svd(cov_eigen, ComputeThinU | Compute ThinV);
+
+    sValues = svd.singularValues();
+    vMatrix = svd.matrixV();
+    for (row_idx=0; row_idx<num_x; row_idx++) {
+        std_array[row_idx] = sValues()(row_idx);
+        for (col_idx=0; col_idx<num_x; col_idx++) {
+            v_mat[row_idx][col_idx] = vMatrix(row_idx, col_idx);
+        }
+    }
+}
+
 void CROMq_encoder::get_x_array() {
     /* Read q_scores from file
        Then do SVD and extract R_array, and std_array
@@ -143,7 +176,8 @@ void CROMq_encoder::get_x_array() {
     // get cov
     get_cov(q_scores);
 
-    // XXX TBD do SVD
+    // do SVD
+    do_svd();
 
     // get x_array (normalized q score)
     get_x_array(q_scores);

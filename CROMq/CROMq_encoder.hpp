@@ -7,6 +7,8 @@
 #include <sstream>
 #include <iostream>
 
+#include <Eigen/SVD>
+
 #include "../encoder/CROM_encoder.hpp"
 
 /* 
@@ -33,11 +35,20 @@ class CROMq_encoder
     int num_x;
     int x_dim;
 
+    // Extract from original q scores
     double* mu;
     double** cov;
+
+    // Result of SVD of covariance matrix
+    double** v_mat;
     double* std_array;
-    double* R_array;
+
+    // Normalized q scores
     double** x_array;
+
+    // Allocated rates
+    double* R_array;
+
 
     // Allocate rate according to the std_array
     void allocate_rate();
