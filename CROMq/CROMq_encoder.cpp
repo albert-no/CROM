@@ -4,13 +4,15 @@
 CROMq_encoder::CROMq_encoder(std::string name,
                             std::string fname_in,
                             int num_x_in,
-                            int x_dim_in) {
+                            int x_dim_in,
+                            double rd_param_in) {
     int row_idx;
 
     name = name_in;
     fname = fname_in;
     num_x = num_x_in;
     x_dim = x_dim_in;
+    rd_param = rd_param_in;
 
     std_array = new double[num_x];
     mu_array = new double[num_x];

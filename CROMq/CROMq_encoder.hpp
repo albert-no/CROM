@@ -24,6 +24,7 @@ class CROMq_encoder
     fname :: name of the file contains sequences
     num_x :: number of sequences, default = 101
     x_dim :: dimension of each sequence
+    rd_param :: assuming D = e^{-rd_param * R}, default = 1.4
 
     std_array :: num_x dimension array that contains std of subsequences
     R_array :: num_x dimension array that contains rate of subsequences
@@ -34,6 +35,7 @@ class CROMq_encoder
     std::string fname;
     int num_x;
     int x_dim;
+    double rd_param;
 
     // Extract from original q scores
     double* mu;
@@ -59,11 +61,14 @@ class CROMq_encoder
     // Get covariance matrix
     void get_cov();
 
+    // Do SVD
+    void do_svd();
+
 
 public:
     // Constructor
     CROMq_encoder(std::string name_in, std::string fname_in, int num_x_in,
-                  int x_dim_in, double *std_array_in, double *R_array_in);
+                  int x_dim_in, double rd_param_in);
 
     // Destructor
     ~CROMq_encoder();
