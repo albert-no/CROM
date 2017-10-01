@@ -238,6 +238,10 @@ void CROMq_encoder::allocate_rate() {
 void CROMq_encoder::run() {
 
     std::string subname;
+    // FIXME define default constructor
+    // define fill member function in CROM_encoder
+    // define nondefault constructor using fill member function
+    CROM_encoder subenc[num_x];
     for (subseq_idx=0; subseq_idx<num_x; subseq_idx++) {
         // declare sub_encoder
         // XXX TBD fix this
@@ -245,6 +249,7 @@ void CROMq_encoder::run() {
                    std::to_string(subseq_idx));
         CROM_encoder subenc(subname, x_dim, R_array[subseq_idx], false);
         // set x in sub_encoder
+        // XXX define set_x_from_array
         subenc.set_x(x_array[subseq_idx]);
         // run subencoder
         subenc.run();
