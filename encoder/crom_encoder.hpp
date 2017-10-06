@@ -8,7 +8,7 @@
 #include <fstream>
 #include <iostream>
 
-#include "../utils/CROM_util.hpp"
+#include "../utils/crom_util.hpp"
 #include "../utils/matrix_multiplication.hpp"
 
 
@@ -49,6 +49,10 @@ public:
 
     // set input vector x via copying from x_in
     void set_x(double *x_in);
+
+    // set input vector x via copying from x_array_in
+    // this feature is being used in CROMq
+    void set_x_from_array(double **x_array_in, int idx, bool vertical);
 
     // read vector x via copying to x_copy
     void copy_x(double *x_copy);

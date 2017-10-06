@@ -6,9 +6,9 @@
 #define EPSILON 1e-6
 
 #include "catch.hpp"
-#include "../encoder/CROM_encoder.hpp"
-#include "../decoder/CROM_decoder.hpp"
-#include "../utils/CROM_util.hpp"
+#include "../encoder/crom_encoder.hpp"
+#include "../decoder/crom_decoder.hpp"
+#include "../utils/crom_util.hpp"
 using namespace std;
 
 TEST_CASE("CROM_full small big", "[CROM_full]") {

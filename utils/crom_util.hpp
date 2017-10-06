@@ -1,4 +1,4 @@
-// CROM_util.hpp
+// crom_util.hpp
 #ifndef CROM_UTIL_H
 #define CROM_UTIL_H
 

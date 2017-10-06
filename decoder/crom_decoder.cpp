@@ -1,7 +1,7 @@
 /* 
-   CROM_decoder.cpp
+   crom_decoder.cpp
 */
-#include "CROM_decoder.hpp"
+#include "crom_decoder.hpp"
 
 // Constructor
 CROM_decoder::CROM_decoder(std::string name_in, int x_dim_in, int L_in, bool verbose_in) {

@@ -5,7 +5,7 @@
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
-#include "../encoder/CROM_encoder.hpp"
+#include "../encoder/crom_encoder.hpp"
 
 TEST_CASE("CROM_encoder small test", "[CROM_encoder]") {
     int x_dim = 8;

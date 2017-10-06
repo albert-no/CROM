@@ -1,16 +1,17 @@
-// CROMq_encoder.hpp
+// cromq_encoder.hpp
 #ifndef CROMQ_ENCODER_H
 #define CROMQ_ENCODER_H
 
+#include <cmath>
 #include <fstream>
 #include <iostream>
-#include <math>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include <Eigen/SVD>
 
-#include "../encoder/CROM_encoder.hpp"
+#include "../encoder/crom_encoder.hpp"
 
 /* 
 */
@@ -57,15 +58,20 @@ class CROMq_encoder
     // Number of nonzero rate
     int num_nonzero_rate;
 
+    // read qscores and compute mu
+    void get_q_scores_and_mu(double** q_scores);
 
     // Allocate rate according to the std_array
     void allocate_rate();
+
+    // normalize q_scores with mu vector and V matrix
+    void normalize_q_scores(double** q_scores);
 
     // Get x_array();
     void get_x_array();
 
     // Get covariance matrix
-    void get_cov();
+    void get_cov(double** q_scores);
 
     // Do SVD
     void do_svd();
@@ -81,6 +87,6 @@ public:
 
     // Run CROMq_encoder
     void run();
-}
+};
 
 #endif

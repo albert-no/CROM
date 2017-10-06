@@ -1,7 +1,7 @@
 /* 
    CROM_encoder.cpp
 */
-#include "CROM_encoder.hpp"
+#include "crom_encoder.hpp"
 
 // Constructor
 CROM_encoder::CROM_encoder(std::string name_in, int x_dim_in, double R_in, bool verbose_in) {
@@ -34,6 +34,20 @@ void CROM_encoder::set_x(double *x_in) {
     int x_iter;
     for (x_iter=0; x_iter<x_dim; x_iter++) {
         x[x_iter] = x_in[x_iter];
+    }
+}
+
+void CROM_encoder::set_x_from_array(double** x_array_in, int idx, bool vertical) {
+    int x_iter;
+    if (vertical) {
+        for (x_iter=0; x_iter<x_dim; x_iter++) {
+            x[x_iter] = x_array_in[x_iter][idx];
+        }
+    }
+    else {
+        for (x_iter=0; x_iter<x_dim; x_iter++) {
+            x[x_iter] = x_array_in[idx][x_iter];
+        }
     }
 }
 

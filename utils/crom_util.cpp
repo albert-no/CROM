@@ -1,5 +1,5 @@
-// CROM_util.cpp
-#include "CROM_util.hpp"
+// crom_util.cpp
+#include "crom_util.hpp"
 
 int find_max_index(double *x, int x_dim) {
     int iter_idx;

@@ -1,7 +1,9 @@
-// CROMq_encoder.cpp
-#include "CROMq_encoder.hpp"
+// cromq_encoder.cpp
+#include "cromq_encoder.hpp"
 
-CROMq_encoder::CROMq_encoder(std::string name,
+using namespace Eigen;
+
+CROMq_encoder::CROMq_encoder(std::string name_in,
                             std::string fname_in,
                             int num_x_in,
                             int x_dim_in,
@@ -17,7 +19,7 @@ CROMq_encoder::CROMq_encoder(std::string name,
     R_overall= R_overall_in;
 
     std_array = new double[num_x];
-    mu_array = new double[num_x];
+    mu = new double[num_x];
     R_array = new double[num_x];
 
     cov = new double*[num_x];
@@ -82,7 +84,7 @@ void CROMq_encoder::get_q_scores_and_mu(double** q_scores) {
         while(lineStream >> qval) {
             // convert charactor to double
             value = (double)qval;
-            q_array[row_idx][subseq_idx] = value;
+            q_scores[row_idx][subseq_idx] = value;
 
             // update mu vector
             mu[subseq_idx] += value;
@@ -101,7 +103,7 @@ void CROMq_encoder::get_q_scores_and_mu(double** q_scores) {
 void CROMq_encoder::get_cov(double** q_scores) {
 
     int row_idx, idx1, idx2;
-    double q_temp = new double[num_x];
+    double* q_temp = new double[num_x];
 
     // initialize cov
     for (idx1=0; idx1<num_x; idx1++)
@@ -140,19 +142,19 @@ void CROMq_encoder::do_svd() {
             cov_eigen(row_idx, col_idx) = cov[row_idx][col_idx];
         }
     }
-    JacobiSVD<MatrixXf> svd(cov_eigen, ComputeThinU | Compute ThinV);
+    JacobiSVD<MatrixXf> svd(cov_eigen, ComputeThinU | ComputeThinV);
 
     sValues = svd.singularValues();
     vMatrix = svd.matrixV();
     for (row_idx=0; row_idx<num_x; row_idx++) {
-        std_array[row_idx] = sValues()(row_idx);
+        std_array[row_idx] = sValues(row_idx);
         for (col_idx=0; col_idx<num_x; col_idx++) {
             v_mat[row_idx][col_idx] = vMatrix(row_idx, col_idx);
         }
     }
 }
 
-void normalize_q_scores(double** q_scores) {
+void CROMq_encoder::normalize_q_scores(double** q_scores) {
     /* normalize q_scores with mu vector and V matrix*/
     int row_idx, col_idx, tmp_idx;
     for (row_idx=0; row_idx<x_dim; row_idx++) {
@@ -207,7 +209,7 @@ void CROMq_encoder::allocate_rate() {
        Assuming D = e^{-1.4R} */
 
     double* log_var_array = new double[num_x];
-    double sum_var_std = 0;
+    double sum_log_var = 0;
     double logD;
     int idx;
 
@@ -238,22 +240,37 @@ void CROMq_encoder::allocate_rate() {
 void CROMq_encoder::run() {
 
     std::string subname;
+    int subseq_idx;
+
+    // get_x_array
+    get_x_array();
+    //allocate_rate
+    allocate_rate();
+
     // FIXME define default constructor
     // define fill member function in CROM_encoder
     // define nondefault constructor using fill member function
-    CROM_encoder subenc[num_x];
+    // CROM_encoder* subenc;
+    std::vector<CROM_encoder> subenc_array;
+
+    // subenc = new CROM_encoder[num_x];
+
     for (subseq_idx=0; subseq_idx<num_x; subseq_idx++) {
         // declare sub_encoder
-        // XXX TBD fix this
-        subname = (name + "_id_" + std::tostring(0) + "_subid_" +
+        subname = (name + "_id_" + std::to_string(0) + "_subid_" +
                    std::to_string(subseq_idx));
         CROM_encoder subenc(subname, x_dim, R_array[subseq_idx], false);
+
         // set x in sub_encoder
-        // XXX define set_x_from_array
-        subenc.set_x(x_array[subseq_idx]);
+        subenc.set_x_from_array(x_array, subseq_idx, true);
+
+        //add sub_encoder to the array of sub_encoders
+        subenc_array.push_back(subenc);
+
         // run subencoder
-        subenc.run();
+        subenc_array[subseq_idx].run();
+
         // write m_array in binary file
-        subenc.write_m_array(true);
+        subenc_array[subseq_idx].write_m_array(true);
     }
 }
