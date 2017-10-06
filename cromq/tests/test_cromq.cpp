@@ -14,8 +14,8 @@
 
 using namespace std;
 
-TEST_CASE("CROMq", "[CROM_q]") {
-    double R = 1.0;
+int main() {
+    double R = 0.1;
     double rd_param = 1.4;
 
     int xdim = TEST_BLOCKLENGTH;
@@ -26,9 +26,7 @@ TEST_CASE("CROMq", "[CROM_q]") {
 
     CROMq_encoder enc(name, fname, num_x, xdim, rd_param, R);
 
-
-    SECTION( "compare final l2 norm after big run" ) {
-        enc.run();
-    }
+    enc.run();
+    return 0;
 }
 

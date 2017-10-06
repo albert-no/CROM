@@ -74,6 +74,8 @@ void CROMq_encoder::get_q_scores_and_mu(double** q_scores) {
     std::ifstream file(fname);
     std::string line;
 
+    std::cout << "Reading Q scores and computing mu" << std::endl;
+
     // initialize mu
     for (col_idx=0; col_idx<num_x; col_idx++)
         mu[col_idx] = 0;
@@ -105,6 +107,8 @@ void CROMq_encoder::get_cov(double** q_scores) {
     int row_idx, idx1, idx2;
     double* q_temp = new double[num_x];
 
+    std::cout << "Getting covariance matrix" << std::endl;
+    std::cout << "num_x = " << num_x << std::endl;
     // initialize cov
     for (idx1=0; idx1<num_x; idx1++)
         for(idx2=0; idx2<num_x; idx2++)
@@ -124,9 +128,13 @@ void CROMq_encoder::get_cov(double** q_scores) {
     }
 
     // normalize cov
-    for (idx1=0; idx1<num_x; idx1++)
-        for(idx2=0; idx2<num_x; idx2++)
+    for (idx1=0; idx1<num_x; idx1++) {
+        cov[idx1][idx1] /= (double) x_dim;
+        for(idx2=0; idx2<idx1; idx2++) {
             cov[idx1][idx2] /= (double) x_dim;
+            cov[idx2][idx1] = cov[idx1][idx2];
+        }
+    }
 
     // free q_temp
     delete[] q_temp;
@@ -134,9 +142,10 @@ void CROMq_encoder::get_cov(double** q_scores) {
 
 void CROMq_encoder::do_svd() {
     int row_idx, col_idx;
-    MatrixXf cov_eigen;
+    MatrixXf cov_eigen(num_x, num_x);
     MatrixXf sValues, vMatrix;
 
+    std::cout << "Running SVD" << std::endl;
     for (row_idx=0; row_idx<num_x; row_idx++) {
         for (col_idx=0; col_idx<num_x; col_idx++) {
             cov_eigen(row_idx, col_idx) = cov[row_idx][col_idx];
@@ -157,6 +166,7 @@ void CROMq_encoder::do_svd() {
 void CROMq_encoder::normalize_q_scores(double** q_scores) {
     /* normalize q_scores with mu vector and V matrix*/
     int row_idx, col_idx, tmp_idx;
+    std::cout << "Normalizing Q scroes" << std::endl;
     for (row_idx=0; row_idx<x_dim; row_idx++) {
         for(col_idx=0; col_idx<num_x; col_idx++) {
             x_array[row_idx][col_idx] = 0;
@@ -213,6 +223,8 @@ void CROMq_encoder::allocate_rate() {
     double logD;
     int idx;
 
+    std::cout << "Allocating Rates" << std::endl;
+
     for (idx=0; idx<num_x; idx++) {
         log_var_array[idx] = 2 * log(std_array[idx]);
         sum_log_var += log_var_array[idx];
@@ -262,12 +274,15 @@ void CROMq_encoder::run() {
         CROM_encoder subenc(subname, x_dim, R_array[subseq_idx], false);
 
         // set x in sub_encoder
+        std::cout << "Assigning normalized q scores to " << subseq_idx << "-th subencoder" << std::endl;
         subenc.set_x_from_array(x_array, subseq_idx, true);
 
         //add sub_encoder to the array of sub_encoders
         subenc_array.push_back(subenc);
 
         // run subencoder
+        std::cout << "Rate = " << R_array[subseq_idx] << std::endl;
+        std::cout << "Running " << subseq_idx << "-th subencoder" << std::endl;
         subenc_array[subseq_idx].run();
 
         // write m_array in binary file
