@@ -16,7 +16,7 @@ script:
     - gcc --version
     - cd catch-tests
     - make
-    - ./test_CROM.o
+    - ./test_crom.o
 addons:
     apt:
         sources:
