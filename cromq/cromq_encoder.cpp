@@ -1,5 +1,6 @@
 // cromq_encoder.cpp
 #include "cromq_encoder.hpp"
+#include <iomanip>
 
 using namespace Eigen;
 
@@ -8,7 +9,8 @@ CROMq_encoder::CROMq_encoder(std::string name_in,
                             int num_x_in,
                             int x_dim_in,
                             double rd_param_in,
-                            double R_overall_in) {
+                            double R_overall_in,
+                            bool verbose_in) {
     int row_idx;
 
     name = name_in;
@@ -16,7 +18,8 @@ CROMq_encoder::CROMq_encoder(std::string name_in,
     num_x = num_x_in;
     x_dim = x_dim_in;
     rd_param = rd_param_in;
-    R_overall= R_overall_in;
+    R_overall = R_overall_in;
+    verbose = verbose_in;
 
     std_array = new double[num_x];
     mu = new double[num_x];
@@ -74,7 +77,8 @@ void CROMq_encoder::get_q_scores_and_mu(double** q_scores) {
     std::ifstream file(fname);
     std::string line;
 
-    std::cout << "Reading Q scores and computing mu" << std::endl;
+    if (verbose)
+        std::cout << "Reading Q scores and computing mu" << std::endl;
 
     // initialize mu
     for (col_idx=0; col_idx<num_x; col_idx++)
@@ -98,8 +102,13 @@ void CROMq_encoder::get_q_scores_and_mu(double** q_scores) {
     file.close();
 
     // normalize mu
-    for (col_idx=0; col_idx<num_x; col_idx++)
+    for (col_idx=0; col_idx<num_x; col_idx++) {
         mu[col_idx] /= (double) x_dim;
+        if (verbose)
+            std::cout << std::setprecision(3) << mu[col_idx] << " ";
+    }
+    if (verbose)
+        std::cout << std::endl << std::endl;
 }
 
 void CROMq_encoder::get_cov(double** q_scores) {
@@ -107,8 +116,10 @@ void CROMq_encoder::get_cov(double** q_scores) {
     int row_idx, idx1, idx2;
     double* q_temp = new double[num_x];
 
-    std::cout << "Getting covariance matrix" << std::endl;
-    std::cout << "num_x = " << num_x << std::endl;
+    if (verbose) {
+        std::cout << "Getting covariance matrix" << std::endl;
+        std::cout << "num_x = " << num_x << std::endl;
+    }
     // initialize cov
     for (idx1=0; idx1<num_x; idx1++)
         for(idx2=0; idx2<num_x; idx2++)
@@ -122,7 +133,7 @@ void CROMq_encoder::get_cov(double** q_scores) {
         // note: (estimated) covariance matrix is symmetric
         for (idx1=0; idx1<num_x; idx1++) {
             for(idx2=0; idx2<=idx1; idx2++) {
-                cov[idx1][idx2] += q_temp[idx1] * q_temp[idx2];
+                cov[idx1][idx2] += (q_temp[idx1] * q_temp[idx2]);
             }
         }
     }
@@ -135,6 +146,16 @@ void CROMq_encoder::get_cov(double** q_scores) {
             cov[idx2][idx1] = cov[idx1][idx2];
         }
     }
+    if (verbose) {
+        for (idx1=0; idx1<num_x; idx1++) {
+            for(idx2=0; idx2<num_x; idx2++) {
+                std::cout << std::setprecision(3) << cov[idx1][idx2] << " ";
+            }
+            std::cout << std::endl;
+        }
+        std::cout << std::endl << std::endl;
+    }
+
 
     // free q_temp
     delete[] q_temp;
@@ -145,7 +166,9 @@ void CROMq_encoder::do_svd() {
     MatrixXf cov_eigen(num_x, num_x);
     MatrixXf sValues, vMatrix;
 
-    std::cout << "Running SVD" << std::endl;
+    if (verbose)
+        std::cout << "Running SVD" << std::endl;
+
     for (row_idx=0; row_idx<num_x; row_idx++) {
         for (col_idx=0; col_idx<num_x; col_idx++) {
             cov_eigen(row_idx, col_idx) = cov[row_idx][col_idx];
@@ -156,23 +179,35 @@ void CROMq_encoder::do_svd() {
     sValues = svd.singularValues();
     vMatrix = svd.matrixV();
     for (row_idx=0; row_idx<num_x; row_idx++) {
-        std_array[row_idx] = sValues(row_idx);
+        std_array[row_idx] = sqrt(sValues(row_idx));
+
         for (col_idx=0; col_idx<num_x; col_idx++) {
             v_mat[row_idx][col_idx] = vMatrix(row_idx, col_idx);
         }
+    }
+    if (verbose) {
+        for (row_idx=0; row_idx<num_x; row_idx++) {
+            std::cout << std_array[row_idx] << " ";
+            for (col_idx=0; col_idx<num_x; col_idx++) {
+                std::cout << std::setprecision(3) << v_mat[row_idx][col_idx] << " ";
+            }
+            std::cout << std::endl;
+        }
+        std::cout << std::endl << std::endl;
     }
 }
 
 void CROMq_encoder::normalize_q_scores(double** q_scores) {
     /* normalize q_scores with mu vector and V matrix*/
     int row_idx, col_idx, tmp_idx;
-    std::cout << "Normalizing Q scroes" << std::endl;
+    if (verbose)
+        std::cout << "Normalizing Q scroes" << std::endl;
     for (row_idx=0; row_idx<x_dim; row_idx++) {
         for(col_idx=0; col_idx<num_x; col_idx++) {
             x_array[row_idx][col_idx] = 0;
-            // compute V * (Q-mu)
+            // compute V^T * (Q-mu)
             for(tmp_idx=0; tmp_idx<num_x; tmp_idx++) {
-                x_array[row_idx][col_idx] += v_mat[col_idx][tmp_idx] * (q_scores[row_idx][tmp_idx] - mu[tmp_idx]);
+                x_array[row_idx][col_idx] += (v_mat[tmp_idx][col_idx] * (q_scores[row_idx][tmp_idx] - mu[tmp_idx]));
             }
             // normalize with std_array
             x_array[row_idx][col_idx] /=  std_array[col_idx];
@@ -190,6 +225,7 @@ void CROMq_encoder::get_x_array() {
 
     double** q_scores;
     int row_idx;
+    int col_idx;
 
     //allocate memory
     q_scores = new double* [x_dim];
@@ -208,6 +244,16 @@ void CROMq_encoder::get_x_array() {
     // normalized q score. this sets x_array
     normalize_q_scores(q_scores);
 
+    if (verbose) {
+        std::cout << std::endl;
+        std::cout << "print x array" << std::endl;
+        for (row_idx=0; row_idx<x_dim; row_idx++) {
+            for (col_idx=0; col_idx<num_x; col_idx++) {
+                std::cout << x_array[row_idx][col_idx] << " ";
+            }
+            std::cout << std::endl;
+        }
+    }
     // free q_scores array
     for (row_idx=0; row_idx<x_dim; row_idx++)
         delete [] q_scores[row_idx];
@@ -223,7 +269,8 @@ void CROMq_encoder::allocate_rate() {
     double logD;
     int idx;
 
-    std::cout << "Allocating Rates" << std::endl;
+    if (verbose)
+        std::cout << "Allocating Rates" << std::endl;
 
     for (idx=0; idx<num_x; idx++) {
         log_var_array[idx] = 2 * log(std_array[idx]);
@@ -246,6 +293,12 @@ void CROMq_encoder::allocate_rate() {
         R_array[num_nonzero_rate-1] = 0;
     }
 
+    if (verbose) {
+        for (idx=0; idx<num_x; idx++) {
+            std::cout << std::setprecision(3) << R_array[idx] << " ";
+        }
+        std::cout << std::endl << std::endl;
+    }
     delete[] log_var_array;
 }
 
@@ -256,14 +309,16 @@ void CROMq_encoder::run() {
 
     // get_x_array
     get_x_array();
+
     //allocate_rate
     allocate_rate();
 
     // FIXME define default constructor
+    // FIXME define copyable object and use vector
     // define fill member function in CROM_encoder
     // define nondefault constructor using fill member function
     // CROM_encoder* subenc;
-    std::vector<CROM_encoder> subenc_array;
+    // std::vector<CROM_encoder> subenc_array;
 
     // subenc = new CROM_encoder[num_x];
 
@@ -271,21 +326,33 @@ void CROMq_encoder::run() {
         // declare sub_encoder
         subname = (name + "_id_" + std::to_string(0) + "_subid_" +
                    std::to_string(subseq_idx));
+        std::cout << "Add " << subseq_idx << "-th subencoder to subencoder array" << std::endl;
+        if (verbose) {
+            std::cout << "x_dim =  " << x_dim << std::endl;
+        }
         CROM_encoder subenc(subname, x_dim, R_array[subseq_idx], false);
+        // subenc_array.push_back(CROM_encoder(subname, x_dim, R_array[subseq_idx], true));
+        //subenc_array.push_back(subenc);
 
         // set x in sub_encoder
-        std::cout << "Assigning normalized q scores to " << subseq_idx << "-th subencoder" << std::endl;
+        if (verbose)
+            std::cout << "Assigning normalized q scores to " << subseq_idx << "-th subencoder" << std::endl;
+        //subenc_array[subseq_idx].set_x_from_array(x_array, subseq_idx, true);
         subenc.set_x_from_array(x_array, subseq_idx, true);
 
         //add sub_encoder to the array of sub_encoders
-        subenc_array.push_back(subenc);
+        //subenc_array.push_back(subenc);
 
         // run subencoder
-        std::cout << "Rate = " << R_array[subseq_idx] << std::endl;
-        std::cout << "Running " << subseq_idx << "-th subencoder" << std::endl;
-        subenc_array[subseq_idx].run();
+        if (verbose) {
+            std::cout << "Rate = " << R_array[subseq_idx] << std::endl;
+            std::cout << "Running " << subseq_idx << "-th subencoder" << std::endl;
+        }
+        //subenc_array[subseq_idx].run();
+        subenc.run();
 
         // write m_array in binary file
-        subenc_array[subseq_idx].write_m_array(true);
+        //subenc_array[subseq_idx].write_m_array(true);
+        subenc.write_m_array(true);
     }
 }

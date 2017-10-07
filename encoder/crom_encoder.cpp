@@ -119,6 +119,11 @@ void CROM_encoder::run() {
     double l2norm;
 
     // Set random seed for thetas
+    if (verbose) {
+        printf("xdim = %d\n", x_dim);
+        printf("L = %d\n", L);
+        printf("Creating fftw plan\n");
+    }
     fftw_plan p;
     p = fftw_plan_r2r_1d(x_dim, x, x_out, FFTW_REDFT10, FFTW_MEASURE);
     for (iter_idx=0; iter_idx<L; iter_idx++) {
@@ -132,6 +137,9 @@ void CROM_encoder::run() {
 
         // generate thetas for encoder (sign=true) with random seed=iter_idx
         generate_theta_from_seed(thetas, half_len, iter_idx, true);
+        if (verbose) {
+            print_vector(thetas, half_len);
+        }
 
         // multiply butterfly matrix
         butterfly_matrix_multiplication(x,
@@ -140,17 +148,26 @@ void CROM_encoder::run() {
                                         x_start_idx,
                                         theta_start_idx,
                                         mat_idx);
+        if (verbose) {
+            printf("After butterfly matrix multiplication\n");
+            print_vector(x, x_dim);
+        }
         // run dct2
         fftw_execute(p);
 
-        // normalize after dct2
-        normalize_then_copy_vector(x, x_out, x_dim);
-
         // print after matrix multiplication
         if (verbose) {
-            printf("After matrix multiplication\n");
+            printf("After dct2 matrix multiplication\n");
             print_vector(x, x_dim);
         }
+
+        // normalize after dct2
+        normalize_then_copy_vector(x, x_out, x_dim);
+        // print after matrix multiplication
+        if (verbose) {
+            printf("Copy x to x_out\n");
+        }
+
         // run CROM
         m = step(scale);
         m_array[iter_idx] = m;

@@ -40,6 +40,7 @@ class CROMq_encoder
     int x_dim;
     double rd_param;
     double R_overall;
+    bool verbose;
 
     // Extract from original q scores
     double* mu;
@@ -80,7 +81,7 @@ class CROMq_encoder
 public:
     // Constructor
     CROMq_encoder(std::string name_in, std::string fname_in, int num_x_in,
-                  int x_dim_in, double rd_param_in, double R_overall_in);
+                  int x_dim_in, double rd_param_in, double R_overall_in, bool verbose);
 
     // Destructor
     ~CROMq_encoder();

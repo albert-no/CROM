@@ -1,7 +1,7 @@
 #include <ctime>
 
 #define TEST_BLOCKLENGTH 65536
-#define TEST_HALFBLOCKLENGTH 32767
+#define TEST_HALFBLOCKLENGTH 32768
 #define SRAND_SEED 5298
 #define EPSILON 1e-6
 
@@ -15,18 +15,28 @@
 using namespace std;
 
 int main() {
-    double R = 0.1;
+    double R = 1;
     double rd_param = 1.4;
 
     int xdim = TEST_BLOCKLENGTH;
     int num_x = 36;
+    bool verbose = false;
 
     string name = "cromq_test";
     string fname = "sample.qscore";
 
-    CROMq_encoder enc(name, fname, num_x, xdim, rd_param, R);
+    srand(SRAND_SEED);
+
+    std::clock_t cromq_time;
+
+    cromq_time = std::clock();
+
+    CROMq_encoder enc(name, fname, num_x, xdim, rd_param, R, verbose);
 
     enc.run();
+
+    cromq_time = std::clock() - cromq_time;
+    std::cout << "time = " << cromq_time << std::endl;
     return 0;
 }
 
