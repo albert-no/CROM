@@ -36,7 +36,8 @@ int main() {
     enc.run();
 
     cromq_time = std::clock() - cromq_time;
-    std::cout << "time = " << cromq_time << std::endl;
+
+    std::cout << "time = " << ((double)cromq_time / (double)CLOCKS_PER_SEC) << std::endl;
     return 0;
 }
 
