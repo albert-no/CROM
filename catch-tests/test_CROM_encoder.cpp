@@ -11,7 +11,7 @@ TEST_CASE("CROM_encoder small test", "[CROM_encoder]") {
     int x_dim = 8;
     std::string name = "basic_test";
     double R = 1;
-    bool verbose = false;
+    bool verbose = true;
 
     int x_iter; 
     CROM_encoder enc (name, x_dim, R, verbose);
@@ -25,7 +25,7 @@ TEST_CASE("CROM_encoder small test", "[CROM_encoder]") {
             -0.570805, 0.929175};
         enc.set_x(x);
         
-        std::vector<double> x_copy(8);
+        std::vector<double> x_copy(x_dim);
         enc.copy_x(x_copy);
 
         for (x_iter=0; x_iter<x_dim; x_iter++) {

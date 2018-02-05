@@ -4,7 +4,7 @@
 */
 #include "matrix_multiplication.hpp"
 
-void butterfly_matrix_multiplication (std::vector<double> &x,
+void butterfly_matrix_multiplication (double *x,
                                       std::vector<double> &thetas,
                                       int half_len,
                                       int x_start_idx,

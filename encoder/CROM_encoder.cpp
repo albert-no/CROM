@@ -56,19 +56,19 @@ void CROM_encoder::copy_l2_array(std::vector<double> &l2_array_copy) {
     }
 }
 
-int CROM_encoder::step(double scale) {
+int CROM_encoder::step(double* x_temp, double scale) {
     int max_idx;
     int iter_idx;
     double n = static_cast<double> (x_dim);
     double offset;
 
     offset = -sqrt(1.0/n/(n-1.0)) * scale;
-    max_idx = find_max_index(x, x_dim);
+    max_idx = find_max_index(x_temp, x_dim);
     for (iter_idx=0; iter_idx<x_dim; iter_idx++) {
-        x[iter_idx] -= offset;
+        x_temp[iter_idx] -= offset;
     }
-    x[max_idx] += offset;
-    x[max_idx] -= (sqrt((n-1.0)/n)*scale);
+    x_temp[max_idx] += offset;
+    x_temp[max_idx] -= (sqrt((n-1.0)/n)*scale);
     return max_idx;
 }
 
@@ -82,9 +82,11 @@ void CROM_encoder::run() {
     int x_start_idx = 0;
     int theta_start_idx = 0;
     int mat_idx;
+    int copy_idx;
 
     std::vector<double> thetas(half_len);
-    std::vector<double> x_out(x_dim);
+    double *x_temp = new double[x_dim];
+    double *x_out = new double[x_dim];
 
     double scale = sqrt(n*(1-exp(-2*log(n)/n)));
     double scale_factor= exp(-log(n)/n);
@@ -98,13 +100,22 @@ void CROM_encoder::run() {
     int m;
     double l2norm;
 
+    // copy vector x to array x_temp
+    for (copy_idx=0; copy_idx<x_dim; copy_idx++) {
+        x_temp[copy_idx] = x[copy_idx];
+    }
+
+    //creating plan
+    fftw_plan p;
+    p = fftw_plan_r2r_1d(x_dim, x_temp, x_out, FFTW_REDFT10, FFTW_MEASURE);
+
     // Set random seed for thetas
     for (iter_idx=0; iter_idx<L; iter_idx++) {
         // before matrix multiplication
         if (verbose) {
             printf("iteration = %d\n", iter_idx);
             printf("Before matrix multiplication\n");
-            print_vector(x, x_dim);
+            print_vector(x_temp, x_dim);
         }
         mat_idx = iter_idx % long_logn;
 
@@ -112,29 +123,29 @@ void CROM_encoder::run() {
         generate_theta_from_seed(thetas, half_len, iter_idx, true);
 
         // multiply butterfly matrix
-        butterfly_matrix_multiplication(x,
+        butterfly_matrix_multiplication(x_temp,
                                         thetas,
                                         half_len,
                                         x_start_idx,
                                         theta_start_idx,
                                         mat_idx);
         // run dct2
-        FastDctFft::transform(x);
+        fftw_execute(p);
 
         // normalize after dct2
-        normalize_vector(x, x_dim);
+        normalize_then_copy_vector(x_temp, x_out, x_dim);
 
         // print after matrix multiplication
         if (verbose) {
             printf("After matrix multiplication\n");
-            print_vector(x, x_dim);
+            print_vector(x_temp, x_dim);
         }
         // run CROM
-        m = step(scale);
+        m = step(x_temp, scale);
         m_array[iter_idx] = m;
 
         // print l2norm
-        l2norm = compute_l2(x, x_dim);
+        l2norm = compute_l2(x_temp, x_dim);
         l2norm /= n;
         l2_array[iter_idx] = l2norm;
         if (verbose) {
@@ -145,6 +156,13 @@ void CROM_encoder::run() {
         // update scale with scale_factor
         scale *= scale_factor;
     }
+    fftw_destroy_plan(p);
+    // copy array x_temp to vector x
+    for (copy_idx=0; copy_idx<x_dim; copy_idx++) {
+        x[copy_idx] = x_temp[copy_idx];
+    }
+    delete[] x_temp;
+    delete[] x_out;
 }
 
 void CROM_encoder::print_m_array() {

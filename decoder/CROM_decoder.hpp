@@ -42,7 +42,7 @@ class CROM_decoder {
     // Single iteration of CROM_decoder with k=1
     // scale :: scale factor of iteration
     // m :: message (index of maximum element) of iteration
-    void step(double scale, int m);
+    void step(double *x_temp, double scale, int m);
 
 public:
     // Constructor
