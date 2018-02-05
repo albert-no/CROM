@@ -15,29 +15,23 @@ CROM_encoder::CROM_encoder(std::string name_in, int x_dim_in, double R_in, bool 
     L = static_cast<int> (n*R/log(n));
 
     // allocate memory
-    m_array = new int[L];
-    l2_array = new double[L];
-    x = new double[x_dim];
+    m_array.resize(L);
+    l2_array.resize(L);
+    x.resize(x_dim);
 }
 
 // Destructor
 CROM_encoder::~CROM_encoder() {
-    if (x)
-        delete[] x;
-    if (m_array)
-        delete[] m_array;
-    if (l2_array)
-        delete[] l2_array;
 }
 
-void CROM_encoder::set_x(double *x_in) {
+void CROM_encoder::set_x(std::vector<double> &x_in) {
     int x_iter;
     for (x_iter=0; x_iter<x_dim; x_iter++) {
         x[x_iter] = x_in[x_iter];
     }
 }
 
-void CROM_encoder::copy_x(double *x_copy) {
+void CROM_encoder::copy_x(std::vector<double> &x_copy) {
     int iter_idx;
     for (iter_idx=0; iter_idx<x_dim; iter_idx++) {
         x_copy[iter_idx] = x[iter_idx];
@@ -48,33 +42,33 @@ int CROM_encoder::get_L() {
     return L;
 }
 
-void CROM_encoder::copy_m_array(int *m_array_copy) {
+void CROM_encoder::copy_m_array(std::vector<int> &m_array_copy) {
     int iter_idx;
     for (iter_idx=0; iter_idx<L; iter_idx++) {
         m_array_copy[iter_idx] = m_array[iter_idx];
     }
 }
 
-void CROM_encoder::copy_l2_array(double *l2_array_copy) {
+void CROM_encoder::copy_l2_array(std::vector<double> &l2_array_copy) {
     int iter_idx;
     for (iter_idx=0; iter_idx<L; iter_idx++) {
         l2_array_copy[iter_idx] = l2_array[iter_idx];
     }
 }
 
-int CROM_encoder::step(double scale) {
+int CROM_encoder::step(double* x_temp, double scale) {
     int max_idx;
     int iter_idx;
     double n = static_cast<double> (x_dim);
     double offset;
 
     offset = -sqrt(1.0/n/(n-1.0)) * scale;
-    max_idx = find_max_index(x, x_dim);
+    max_idx = find_max_index(x_temp, x_dim);
     for (iter_idx=0; iter_idx<x_dim; iter_idx++) {
-        x[iter_idx] -= offset;
+        x_temp[iter_idx] -= offset;
     }
-    x[max_idx] += offset;
-    x[max_idx] -= (sqrt((n-1.0)/n)*scale);
+    x_temp[max_idx] += offset;
+    x_temp[max_idx] -= (sqrt((n-1.0)/n)*scale);
     return max_idx;
 }
 
@@ -88,8 +82,10 @@ void CROM_encoder::run() {
     int x_start_idx = 0;
     int theta_start_idx = 0;
     int mat_idx;
+    int copy_idx;
 
-    double *thetas = new double[half_len];
+    std::vector<double> thetas(half_len);
+    double *x_temp = new double[x_dim];
     double *x_out = new double[x_dim];
 
     double scale = sqrt(n*(1-exp(-2*log(n)/n)));
@@ -104,15 +100,22 @@ void CROM_encoder::run() {
     int m;
     double l2norm;
 
-    // Set random seed for thetas
+    // copy vector x to array x_temp
+    for (copy_idx=0; copy_idx<x_dim; copy_idx++) {
+        x_temp[copy_idx] = x[copy_idx];
+    }
+
+    //creating plan
     fftw_plan p;
-    p = fftw_plan_r2r_1d(x_dim, x, x_out, FFTW_REDFT10, FFTW_MEASURE);
+    p = fftw_plan_r2r_1d(x_dim, x_temp, x_out, FFTW_REDFT10, FFTW_MEASURE);
+
+    // Set random seed for thetas
     for (iter_idx=0; iter_idx<L; iter_idx++) {
         // before matrix multiplication
         if (verbose) {
             printf("iteration = %d\n", iter_idx);
             printf("Before matrix multiplication\n");
-            print_vector(x, x_dim);
+            print_vector(x_temp, x_dim);
         }
         mat_idx = iter_idx % long_logn;
 
@@ -120,7 +123,7 @@ void CROM_encoder::run() {
         generate_theta_from_seed(thetas, half_len, iter_idx, true);
 
         // multiply butterfly matrix
-        butterfly_matrix_multiplication(x,
+        butterfly_matrix_multiplication(x_temp,
                                         thetas,
                                         half_len,
                                         x_start_idx,
@@ -130,19 +133,19 @@ void CROM_encoder::run() {
         fftw_execute(p);
 
         // normalize after dct2
-        normalize_then_copy_vector(x, x_out, x_dim);
+        normalize_then_copy_vector(x_temp, x_out, x_dim);
 
         // print after matrix multiplication
         if (verbose) {
             printf("After matrix multiplication\n");
-            print_vector(x, x_dim);
+            print_vector(x_temp, x_dim);
         }
         // run CROM
-        m = step(scale);
+        m = step(x_temp, scale);
         m_array[iter_idx] = m;
 
         // print l2norm
-        l2norm = compute_l2(x, x_dim);
+        l2norm = compute_l2(x_temp, x_dim);
         l2norm /= n;
         l2_array[iter_idx] = l2norm;
         if (verbose) {
@@ -154,7 +157,11 @@ void CROM_encoder::run() {
         scale *= scale_factor;
     }
     fftw_destroy_plan(p);
-    delete[] thetas;
+    // copy array x_temp to vector x
+    for (copy_idx=0; copy_idx<x_dim; copy_idx++) {
+        x[copy_idx] = x_temp[copy_idx];
+    }
+    delete[] x_temp;
     delete[] x_out;
 }
 

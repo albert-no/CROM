@@ -25,7 +25,7 @@ double compute_l2(double *x, int x_dim) {
     return l2norm;
 }
 
-double compute_l2_dist(double *x, double *x_hat, int x_dim) {
+double compute_l2_dist(std::vector<double> &x, std::vector<double> &x_hat, int x_dim) {
     int iter_idx;
     double l2dist = 0;
     double diff;
@@ -65,19 +65,19 @@ void copy_vector(double *x, double *xout, int x_dim) {
     }
 }
 
-void normalize_then_copy_vector(double *x, double *xout, int x_dim) {
+void normalize_then_copy_vector(double *x, double *x_out, int x_dim) {
     int iter_idx;
     double n = static_cast <double> (x_dim);
-    double inverse_sqrtn = sqrt(1/4.0/n);
-    double inverse_halfsqrtn = sqrt(1/2.0/n);
+    double inverse_sqrtn = sqrt(1.0/4.0/n);
+    double inverse_halfsqrtn = sqrt(1.0/2.0/n);
 
-    x[0] = inverse_sqrtn * xout[0];
+    x[0] = inverse_sqrtn * x_out[0];
     for (iter_idx=1; iter_idx<x_dim; iter_idx++) {
-        x[iter_idx] = inverse_halfsqrtn * xout[iter_idx];
+        x[iter_idx] = inverse_halfsqrtn * x_out[iter_idx];
     }
 }
 
-void generate_theta_from_seed(double *thetas, int theta_dim, int seed, bool sign) {
+void generate_theta_from_seed(std::vector<double> &thetas, int theta_dim, int seed, bool sign) {
     int theta_idx;
     double uni_rand;
     double double_sign;

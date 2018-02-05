@@ -5,7 +5,7 @@
 #include "matrix_multiplication.hpp"
 
 void butterfly_matrix_multiplication (double *x,
-                                      double *thetas,
+                                      std::vector<double> &thetas,
                                       int half_len,
                                       int x_start_idx,
                                       int theta_start_idx,

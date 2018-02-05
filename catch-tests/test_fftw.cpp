@@ -57,8 +57,8 @@ TEST_CASE("fftw small test", "[fftw]") {
         fftw_execute(p);
         copy_vector(x, xout, xdim);
         double x_final_expected[TEST_BLOCKLENGTH] = {
-            1.1, 1.2, -1.0, 1.0,
-            1.0, 1.6, 1.0, 1.0};
+        1.1, 1.2, -1.0, 1.0,
+        1.0, 1.6, 1.0, 1.0};
         for (x_iter=0; x_iter<xdim; x_iter++) {
             CHECK( x[x_iter] == Approx(x_final_expected[x_iter]).epsilon(EPSILON) );
         }

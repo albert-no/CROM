@@ -7,6 +7,7 @@
 #include <cmath>
 #include <fstream>
 #include <iostream>
+#include <vector>
 
 #include "../utils/CROM_util.hpp"
 #include "../utils/matrix_multiplication.hpp"
@@ -27,18 +28,20 @@ class CROM_encoder
         verbose :: whether printing intermediate l2 norm
         name :: name of the object
     */
-    double *x;
     int x_dim;
     double R;
     int L;
-    int *m_array;
-    double *l2_array;
     bool verbose;
+
     std::string name;
+
+    std::vector<double> x;
+    std::vector<int> m_array;
+    std::vector<double> l2_array;
 
     // Single iteration of CROM_encoder with k=1
     // scale :: scale factor of iteration
-    int step(double scale);
+    int step(double* x_temp, double scale);
 
 public:
     // Constructor
@@ -48,16 +51,16 @@ public:
     ~CROM_encoder();
 
     // set input vector x via copying from x_in
-    void set_x(double *x_in);
+    void set_x(std::vector<double> &x_in);
 
     // read vector x via copying to x_copy
-    void copy_x(double *x_copy);
+    void copy_x(std::vector<double> &x_copy);
 
     // read m_array via copying to m_array_copy
-    void copy_m_array(int *m_array_copy);
+    void copy_m_array(std::vector<int> &m_array_copy);
 
     // read l2_array via copying to l2_array_copy
-    void copy_l2_array(double *l2_array_copy);
+    void copy_l2_array(std::vector<double> &l2_array_copy);
 
     // get number of iterations L
     int get_L();

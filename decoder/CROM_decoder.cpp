@@ -10,23 +10,15 @@ CROM_decoder::CROM_decoder(std::string name_in, int x_dim_in, int L_in, bool ver
     L = L_in;
     verbose = verbose_in;
 
-    int x_iter;
-    x_hat = new double[x_dim];
-    for (x_iter=0; x_iter<x_dim; x_iter++) {
-        x_hat[x_iter] = 0;
-    }
-    m_array = new int[L];
+    x_hat.resize(x_dim);
+    m_array.resize(L);
 }
 
 // Destructor
 CROM_decoder::~CROM_decoder() {
-    if (x_hat)
-        delete[] x_hat;
-    if (m_array)
-        delete[] m_array;
 }
 
-void CROM_decoder::set_m_array(int *m_array_in) {
+void CROM_decoder::set_m_array(std::vector<int> &m_array_in) {
     int m_iter;
     for (m_iter=0; m_iter<L; m_iter++) {
         m_array[m_iter] = m_array_in[m_iter];
@@ -56,14 +48,14 @@ void CROM_decoder::read_m_array(bool binary) {
     }
 }
 
-void CROM_decoder::copy_x_hat(double *x_hat_copy) {
+void CROM_decoder::copy_x_hat(std::vector<double> &x_hat_copy) {
     int x_iter;
     for (x_iter=0; x_iter<x_dim; x_iter++) {
         x_hat_copy[x_iter] = x_hat[x_iter];
     }
 }
 
-void CROM_decoder::step(double scale, int m) {
+void CROM_decoder::step(double *x_hat_temp, double scale, int m) {
     int max_idx;
     int iter_idx;
     double n = static_cast<double> (x_dim);
@@ -71,10 +63,10 @@ void CROM_decoder::step(double scale, int m) {
 
     offset = -sqrt(1.0/n/(n-1.0)) * scale;
     for (iter_idx=0; iter_idx<x_dim; iter_idx++) {
-        x_hat[iter_idx] += offset;
+        x_hat_temp[iter_idx] += offset;
     }
-    x_hat[m] -= offset;
-    x_hat[m] += (sqrt((n-1.0)/n)*scale);
+    x_hat_temp[m] -= offset;
+    x_hat_temp[m] += (sqrt((n-1.0)/n)*scale);
 }
 
 void CROM_decoder::run() {
@@ -86,8 +78,10 @@ void CROM_decoder::run() {
     int x_start_idx = 0;
     int theta_start_idx = 0;
     int mat_idx;
+    int x_hat_idx;
 
-    double *thetas_inv = new double[half_len];
+    std::vector<double> thetas_inv(half_len);
+    double *x_hat_temp= new double[x_dim];
     double *x_out = new double[x_dim];
 
     double scale = sqrt(n*(1-exp(-2*log(n)/n)));
@@ -105,9 +99,14 @@ void CROM_decoder::run() {
     // setup scale
     scale = sqrt(n*(1-exp(-2*log(n)/n))) * exp(-(L-1)*log(n)/n);
 
+    // initialize x_hat_temp array
+    for (x_hat_idx=0; x_hat_idx<x_dim; x_hat_idx++)
+        x_hat_temp[x_hat_idx] = 0;
+
     // Set random seed for thetas
     fftw_plan p;
-    p = fftw_plan_r2r_1d(x_dim, x_hat, x_out, FFTW_REDFT01, FFTW_MEASURE);
+    p = fftw_plan_r2r_1d(x_dim, x_hat_temp, x_out, FFTW_REDFT01, FFTW_MEASURE);
+
     for (iter_idx=L-1; iter_idx>=0; iter_idx--) {
         if (verbose) {
             printf("iteration = %d\n", iter_idx);
@@ -116,20 +115,23 @@ void CROM_decoder::run() {
 
         // Decoding step
         m = m_array[iter_idx];
-        step(scale, m);
+        step(x_hat_temp, scale, m);
 
         // unnormalize before idct2
-        unnormalize_vector(x_hat, x_dim);
+        unnormalize_vector(x_hat_temp, x_dim);
+
         // run idct2
         fftw_execute(p);
+
         // copy x from xout
-        copy_vector(x_hat, x_out, x_dim);
+        copy_vector(x_hat_temp, x_out, x_dim);
+
 
         // generate thetas for decoder (sign=false) from random seed=iter_idx
         generate_theta_from_seed(thetas_inv, half_len, iter_idx, false);
 
         // multiply inverse butterfly matrix
-        butterfly_matrix_multiplication(x_hat,
+        butterfly_matrix_multiplication(x_hat_temp,
                                         thetas_inv,
                                         half_len,
                                         x_start_idx,
@@ -138,12 +140,16 @@ void CROM_decoder::run() {
         // update scale with scale factor
         scale /= scale_factor;
         if (verbose) {
-            print_vector(x_hat, x_dim);
+            print_vector(x_hat_temp, x_dim);
         }
     }
+    // copy x_hat_temp array to x_hat vector
+    for (x_hat_idx=0; x_hat_idx<x_dim; x_hat_idx++)
+        x_hat[x_hat_idx] = x_hat_temp[x_hat_idx];
+
     fftw_destroy_plan(p);
-    delete[] thetas_inv;
-    delete[] x_out;
+    delete [] x_hat_temp;
+    delete [] x_out;
 }
 
 void CROM_decoder::write_x_hat() {

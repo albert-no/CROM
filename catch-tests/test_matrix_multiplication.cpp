@@ -1,3 +1,5 @@
+# include <vector>
+
 #define BLOCKLENGTH 16
 #define HALFBLOCKLENGTH 8
 #define EPSILON 1e-6
@@ -21,11 +23,11 @@ TEST_CASE("matrix multiplication small test", "[matrix_multiplication]") {
 
     long x_iter;
 
-    double thetas[HALFBLOCKLENGTH] = {
+    std::vector<double> thetas = {
         0.1, 0.2, 0.3, 0.4,
         0.5, -0.2, -0.7, 2.0};
 
-    double thetas_inv[HALFBLOCKLENGTH] = {
+    std::vector<double> thetas_inv = {
         -0.1, -0.2, -0.3, -0.4,
         -0.5, 0.2, 0.7, -2.0};
 
