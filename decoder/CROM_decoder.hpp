@@ -11,7 +11,6 @@
 #include <vector>
 
 #include "../utils/CROM_util.hpp"
-#include "../utils/FastDctFft.hpp"
 #include "../utils/matrix_multiplication.hpp"
 
 // void CROM_decoding_step(double *x, int x_dim, double scale, int m);

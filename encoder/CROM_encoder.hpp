@@ -10,7 +10,6 @@
 #include <vector>
 
 #include "../utils/CROM_util.hpp"
-#include "../utils/FastDctFft.hpp"
 #include "../utils/matrix_multiplication.hpp"
 
 
