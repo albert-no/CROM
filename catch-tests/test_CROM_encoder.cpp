@@ -11,7 +11,7 @@ TEST_CASE("CROM_encoder small test", "[CROM_encoder]") {
     int x_dim = 8;
     std::string name = "basic_test";
     double R = 1;
-    bool verbose = true;
+    bool verbose = false;
 
     int x_iter; 
     CROM_encoder enc (name, x_dim, R, verbose);

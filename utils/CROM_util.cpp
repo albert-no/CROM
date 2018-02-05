@@ -71,9 +71,9 @@ void normalize_then_copy_vector(double *x, double *x_out, int x_dim) {
     double inverse_sqrtn = sqrt(1.0/4.0/n);
     double inverse_halfsqrtn = sqrt(1.0/2.0/n);
 
-    x[0] = inverse_sqrtn * x[0];
+    x[0] = inverse_sqrtn * x_out[0];
     for (iter_idx=1; iter_idx<x_dim; iter_idx++) {
-        x[iter_idx] = inverse_halfsqrtn * x[iter_idx];
+        x[iter_idx] = inverse_halfsqrtn * x_out[iter_idx];
     }
 }
 
