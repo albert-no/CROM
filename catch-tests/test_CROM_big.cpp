@@ -1,4 +1,5 @@
 #include <ctime>
+#include <vector>
 
 #define TEST_BLOCKLENGTH 65536
 #define TEST_HALFBLOCKLENGTH 32767
@@ -14,12 +15,15 @@ using namespace std;
 TEST_CASE("CROM_full small big", "[CROM_full]") {
     double R = 1.0;
     int xdim = TEST_BLOCKLENGTH;
-    srand(SRAND_SEED);
-    double x[TEST_BLOCKLENGTH];
-    double x_save[TEST_BLOCKLENGTH];
     bool verbose = false;
-    double xhat[TEST_BLOCKLENGTH];
+
     string name = "full_big_test";
+
+    std::vector<double> x(TEST_BLOCKLENGTH);
+    std::vector<double> x_save(TEST_BLOCKLENGTH);
+    std::vector<double> xhat(TEST_BLOCKLENGTH);
+
+    srand(SRAND_SEED);
 
     CROM_encoder enc (name, xdim, R, verbose);
     int x_iter;
@@ -74,11 +78,10 @@ TEST_CASE("CROM_full small big", "[CROM_full]") {
         double l2dist;
         l2dist = compute_l2_dist(x_save, xhat, xdim);
         l2dist /= static_cast<double> (xdim);
-        double *l2_array_copy = new double[L];
+        std::vector<double> l2_array_copy(L);
         enc.copy_l2_array(l2_array_copy);
 
         CHECK( l2dist == Approx(l2_array_copy[L-1]) );
-        delete[] l2_array_copy;
     }
 }
 

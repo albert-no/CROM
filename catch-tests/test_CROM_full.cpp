@@ -13,24 +13,24 @@ TEST_CASE("CROM_full small test", "[CROM_full]") {
     int xdim = TEST_BLOCKLENGTH;
     bool verbose = false;
     string name = "full_test";
-    double x[TEST_BLOCKLENGTH] = {
+    std::vector<double> x = {
         -0.769811, 0.186957,
         -0.0782989, 0.446422,
         -0.4684, 0.0454221,
         1.56657, 1.44174};
-    double x_save[TEST_BLOCKLENGTH] = {
+    std::vector<double> x_save = {
         -0.769811, 0.186957,
         -0.0782989, 0.446422,
         -0.4684, 0.0454221,
         1.56657, 1.44174};
-    double xhat_expected[TEST_BLOCKLENGTH] = {
+    std::vector<double> xhat_expected = {
         -0.4883347668, 0.3162271728,
         -0.0086511553, 0.375842363,
         -0.5104244858, 0.1219668209,
         0.23900423, 0.825249401};
 
     std::vector<int> v_m_arr_expected {3, 1, 1};
-    double xhat[TEST_BLOCKLENGTH];
+    std::vector<double> xhat(TEST_BLOCKLENGTH);
 
     CROM_encoder enc (name, xdim, R, verbose);
     int x_iter;
@@ -46,9 +46,8 @@ TEST_CASE("CROM_full small test", "[CROM_full]") {
 
         // encoding and check m_array
         enc.run();
-        int *m_array_copy = new int[L];
-        enc.copy_m_array(m_array_copy);
-        std::vector<int> v_m_arr(m_array_copy, m_array_copy+L);
+        std::vector<int> v_m_arr(L);
+        enc.copy_m_array(v_m_arr);
         CHECK( v_m_arr == v_m_arr_expected );
 
         // check print_m_array
@@ -57,8 +56,7 @@ TEST_CASE("CROM_full small test", "[CROM_full]") {
 
         // decoding and set m_array
         CROM_decoder dec (name, xdim, L, verbose);
-        dec.set_m_array(m_array_copy);
-        delete[] m_array_copy;
+        dec.set_m_array(v_m_arr);
 
         // decoding
         dec.run();
@@ -143,10 +141,9 @@ TEST_CASE("CROM_full small test", "[CROM_full]") {
         CHECK( l2dist == Approx(0.2819860781) );
 
         // compare final l2 distance and encoder's l2_array
-        double *l2_array_copy = new double[L];
+        std::vector<double> l2_array_copy(L);
         enc.copy_l2_array(l2_array_copy);
         CHECK( l2dist == Approx(l2_array_copy[L-1]) );
-        delete[] l2_array_copy;
     }
 }
 

@@ -15,29 +15,23 @@ CROM_encoder::CROM_encoder(std::string name_in, int x_dim_in, double R_in, bool 
     L = static_cast<int> (n*R/log(n));
 
     // allocate memory
-    m_array = new int[L];
-    l2_array = new double[L];
-    x = new double[x_dim];
+    m_array.resize(L);
+    l2_array.resize(L);
+    x.resize(x_dim);
 }
 
 // Destructor
 CROM_encoder::~CROM_encoder() {
-    if (x)
-        delete[] x;
-    if (m_array)
-        delete[] m_array;
-    if (l2_array)
-        delete[] l2_array;
 }
 
-void CROM_encoder::set_x(double *x_in) {
+void CROM_encoder::set_x(std::vector<double> &x_in) {
     int x_iter;
     for (x_iter=0; x_iter<x_dim; x_iter++) {
         x[x_iter] = x_in[x_iter];
     }
 }
 
-void CROM_encoder::copy_x(double *x_copy) {
+void CROM_encoder::copy_x(std::vector<double> &x_copy) {
     int iter_idx;
     for (iter_idx=0; iter_idx<x_dim; iter_idx++) {
         x_copy[iter_idx] = x[iter_idx];
@@ -48,14 +42,14 @@ int CROM_encoder::get_L() {
     return L;
 }
 
-void CROM_encoder::copy_m_array(int *m_array_copy) {
+void CROM_encoder::copy_m_array(std::vector<int> &m_array_copy) {
     int iter_idx;
     for (iter_idx=0; iter_idx<L; iter_idx++) {
         m_array_copy[iter_idx] = m_array[iter_idx];
     }
 }
 
-void CROM_encoder::copy_l2_array(double *l2_array_copy) {
+void CROM_encoder::copy_l2_array(std::vector<double> &l2_array_copy) {
     int iter_idx;
     for (iter_idx=0; iter_idx<L; iter_idx++) {
         l2_array_copy[iter_idx] = l2_array[iter_idx];
@@ -89,8 +83,8 @@ void CROM_encoder::run() {
     int theta_start_idx = 0;
     int mat_idx;
 
-    double *thetas = new double[half_len];
-    double *x_out = new double[x_dim];
+    std::vector<double> thetas(half_len);
+    std::vector<double> x_out(x_dim);
 
     double scale = sqrt(n*(1-exp(-2*log(n)/n)));
     double scale_factor= exp(-log(n)/n);
@@ -105,8 +99,6 @@ void CROM_encoder::run() {
     double l2norm;
 
     // Set random seed for thetas
-    fftw_plan p;
-    p = fftw_plan_r2r_1d(x_dim, x, x_out, FFTW_REDFT10, FFTW_MEASURE);
     for (iter_idx=0; iter_idx<L; iter_idx++) {
         // before matrix multiplication
         if (verbose) {
@@ -127,10 +119,10 @@ void CROM_encoder::run() {
                                         theta_start_idx,
                                         mat_idx);
         // run dct2
-        fftw_execute(p);
+        FastDctFft::transform(x);
 
         // normalize after dct2
-        normalize_then_copy_vector(x, x_out, x_dim);
+        normalize_vector(x, x_dim);
 
         // print after matrix multiplication
         if (verbose) {
@@ -153,9 +145,6 @@ void CROM_encoder::run() {
         // update scale with scale_factor
         scale *= scale_factor;
     }
-    fftw_destroy_plan(p);
-    delete[] thetas;
-    delete[] x_out;
 }
 
 void CROM_encoder::print_m_array() {

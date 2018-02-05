@@ -11,22 +11,17 @@ CROM_decoder::CROM_decoder(std::string name_in, int x_dim_in, int L_in, bool ver
     verbose = verbose_in;
 
     int x_iter;
-    x_hat = new double[x_dim];
-    for (x_iter=0; x_iter<x_dim; x_iter++) {
-        x_hat[x_iter] = 0;
-    }
-    m_array = new int[L];
+    x_hat.resize(x_dim);
+    std::fill(x_hat.begin(), x_hat.end(), 0);
+
+    m_array.resize(L);
 }
 
 // Destructor
 CROM_decoder::~CROM_decoder() {
-    if (x_hat)
-        delete[] x_hat;
-    if (m_array)
-        delete[] m_array;
 }
 
-void CROM_decoder::set_m_array(int *m_array_in) {
+void CROM_decoder::set_m_array(std::vector<int> &m_array_in) {
     int m_iter;
     for (m_iter=0; m_iter<L; m_iter++) {
         m_array[m_iter] = m_array_in[m_iter];
@@ -56,7 +51,7 @@ void CROM_decoder::read_m_array(bool binary) {
     }
 }
 
-void CROM_decoder::copy_x_hat(double *x_hat_copy) {
+void CROM_decoder::copy_x_hat(std::vector<double> &x_hat_copy) {
     int x_iter;
     for (x_iter=0; x_iter<x_dim; x_iter++) {
         x_hat_copy[x_iter] = x_hat[x_iter];
@@ -87,8 +82,8 @@ void CROM_decoder::run() {
     int theta_start_idx = 0;
     int mat_idx;
 
-    double *thetas_inv = new double[half_len];
-    double *x_out = new double[x_dim];
+    std::vector<double> thetas_inv(half_len);
+    std::vector<double> x_out(x_dim);
 
     double scale = sqrt(n*(1-exp(-2*log(n)/n)));
     double scale_factor= exp(-log(n)/n);
@@ -106,8 +101,6 @@ void CROM_decoder::run() {
     scale = sqrt(n*(1-exp(-2*log(n)/n))) * exp(-(L-1)*log(n)/n);
 
     // Set random seed for thetas
-    fftw_plan p;
-    p = fftw_plan_r2r_1d(x_dim, x_hat, x_out, FFTW_REDFT01, FFTW_MEASURE);
     for (iter_idx=L-1; iter_idx>=0; iter_idx--) {
         if (verbose) {
             printf("iteration = %d\n", iter_idx);
@@ -121,9 +114,8 @@ void CROM_decoder::run() {
         // unnormalize before idct2
         unnormalize_vector(x_hat, x_dim);
         // run idct2
-        fftw_execute(p);
+        FastDctFft::inverseTransform(x_hat);
         // copy x from xout
-        copy_vector(x_hat, x_out, x_dim);
 
         // generate thetas for decoder (sign=false) from random seed=iter_idx
         generate_theta_from_seed(thetas_inv, half_len, iter_idx, false);
@@ -141,9 +133,6 @@ void CROM_decoder::run() {
             print_vector(x_hat, x_dim);
         }
     }
-    fftw_destroy_plan(p);
-    delete[] thetas_inv;
-    delete[] x_out;
 }
 
 void CROM_decoder::write_x_hat() {
