@@ -10,12 +10,14 @@
 using namespace std;
 
 TEST_CASE("matrix multiplication small test", "[matrix_multiplication]") {
-    double x[BLOCKLENGTH] = {
+//    double x[BLOCKLENGTH] = {
+    std::vector<double> x = {
         1.1, 1.0, 1.0, -2.1,
         0.1, 4.0, -1.0, 4.5,
         1.0, 2.0, 1.3, 0.1,
         -0.2, -0.3, 0.4, 2.2};
-    double x_final_expected[BLOCKLENGTH] = {
+    std::vector<double> x_final_expected = {
+//    double x_final_expected[BLOCKLENGTH] = {
         1.1, 1.0, 1.0, -2.1,
         0.1, 4.0, -1.0, 4.5,
         1.0, 2.0, 1.3, 0.1,
@@ -35,7 +37,8 @@ TEST_CASE("matrix multiplication small test", "[matrix_multiplication]") {
         int mat_idx = 0;
 
         // matrix multiplication
-        double x_out_expected[BLOCKLENGTH] = {
+//        double x_out_expected[BLOCKLENGTH] = {
+        std::vector<double> x_out_expected = {
             0.9946711652, 0.5827279163,
             0.5711602205, -1.9731699216,
             0.1836433639, 3.8606655121,
@@ -71,7 +74,8 @@ TEST_CASE("matrix multiplication small test", "[matrix_multiplication]") {
         int mat_idx = 2;
 
         // matrix multiplication
-        double x_out_expected[BLOCKLENGTH] = {
+        // double x_out_expected[BLOCKLENGTH] = {
+        std::vector<double> x_out_expected = {
             0.9946711652, 1.3972721725,
             1.1048209236, -1.8594704827,
             0.3910538556, 1.9318614356,
