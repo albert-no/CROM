@@ -7,7 +7,6 @@
 
 #include "catch.hpp"
 #include "../utils/CROM_util.hpp"
-#include "../utils/FastDctLee.hpp"
 
 using namespace std;
 

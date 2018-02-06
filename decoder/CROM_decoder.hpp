@@ -11,7 +11,6 @@
 #include <vector>
 
 #include "../utils/CROM_util.hpp"
-#include "../utils/FastDctLee.hpp"
 #include "../utils/matrix_multiplication.hpp"
 
 
