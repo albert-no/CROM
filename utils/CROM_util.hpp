@@ -18,7 +18,7 @@
    Returns
    -------
    max_idx :: index of maximum element */
-int find_max_index(double *x, int x_dim);
+int find_max_index(std::vector<double> &x, int x_dim);
 
 /* Compute l2 norm of the vector x
 
@@ -30,7 +30,7 @@ int find_max_index(double *x, int x_dim);
    Returns
    -------
    l2norm :: l2norm of x */
-double compute_l2(double *x, int x_dim);
+double compute_l2(std::vector<double> &x, int x_dim);
 
 /* Compute l2 distance between two vectors x and x_hat
 
@@ -51,7 +51,7 @@ double compute_l2_dist(std::vector<double>& x, std::vector<double> &x_hat, int x
    ----------
    x :: input vector
    x_dim :: dimension of x */
-void print_vector(double *x, int x_dim);
+void print_vector(std::vector<double> &x, int x_dim);
 
 /* Unnormalize the vector x before idct2
 
@@ -61,7 +61,7 @@ void print_vector(double *x, int x_dim);
    ----------
    x :: input vector
    x_dim :: dimension of x */
-void unnormalize_vector(double *x, int x_dim);
+void unnormalize_vector(std::vector<double> &x, int x_dim);
 
 /* Copy vector x to xout
 
@@ -70,7 +70,7 @@ void unnormalize_vector(double *x, int x_dim);
    x :: input vector
    x_out :: output vector
    x_dim :: dimension of x */
-void copy_vector(double *x, double *xout, int x_dim);
+void copy_vector(std::vector<double> &x, std::vector<double> &xout, int x_dim);
 
 /* Normalize the vector xout and copy to x after dct2
 
@@ -83,7 +83,7 @@ void copy_vector(double *x, double *xout, int x_dim);
    x :: input vector
    x_out :: output vector
    x_dim :: dimension of x */
-void normalize_then_copy_vector(double *x, double *x_out, int x_dim);
+void normalize_then_copy_vector(std::vector<double> &x, std::vector<double> &x_out, int x_dim);
 
 /* Generate thetas from random seed
 

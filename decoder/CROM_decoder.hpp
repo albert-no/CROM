@@ -4,17 +4,16 @@
 #ifndef CROM_DECODER_H
 #define CROM_DECODER_H
 
-#include <cstdlib>
 #include <cmath>
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <vector>
 
 #include "../utils/CROM_util.hpp"
+#include "../utils/FastDctLee.hpp"
 #include "../utils/matrix_multiplication.hpp"
 
-// void CROM_decoding_step(double *x, int x_dim, double scale, int m);
-// void CROM_decoder(double *xhat, int x_dim, int L, int *m_array, bool verbose);
 
 class CROM_decoder {
     /* CROM decoder with k=1 
@@ -41,7 +40,7 @@ class CROM_decoder {
     // Single iteration of CROM_decoder with k=1
     // scale :: scale factor of iteration
     // m :: message (index of maximum element) of iteration
-    void step(double *x_temp, double scale, int m);
+    void step(double scale, int m);
 
 public:
     // Constructor

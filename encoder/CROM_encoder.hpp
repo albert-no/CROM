@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "../utils/CROM_util.hpp"
+#include "../utils/FastDctLee.hpp"
 #include "../utils/matrix_multiplication.hpp"
 
 
@@ -41,7 +42,7 @@ class CROM_encoder
 
     // Single iteration of CROM_encoder with k=1
     // scale :: scale factor of iteration
-    int step(double* x_temp, double scale);
+    int step(double scale);
 
 public:
     // Constructor
