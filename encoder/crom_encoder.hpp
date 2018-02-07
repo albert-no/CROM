@@ -55,7 +55,7 @@ public:
 
     // set input vector x via copying from x_array_in
     // this feature is being used in CROMq
-    void set_x_from_array(double **x_array_in, int idx, bool vertical);
+    void set_x_from_array(std::vector<std::vector<double>> &x_array_in, int idx, bool vertical);
 
     // read vector x via copying to x_copy
     void copy_x(std::vector<double> &x_copy);

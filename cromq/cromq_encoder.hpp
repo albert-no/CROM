@@ -43,36 +43,36 @@ class CROMq_encoder
     bool verbose;
 
     // Extract from original q scores
-    double* mu;
-    double** cov;
+    std::vector<double> mu;
+    std::vector<std::vector<double>> cov;
 
     // Result of SVD of covariance matrix
-    double** v_mat;
-    double* std_array;
+    std::vector<std::vector<double>> v_mat;
+    std::vector<double> std_array;
 
     // Normalized q scores
-    double** x_array;
+    std::vector<std::vector<double>> x_array;
 
     // Allocated rates
-    double* R_array;
+    std::vector<double> R_array;
 
     // Number of nonzero rate
     int num_nonzero_rate;
 
     // read qscores and compute mu
-    void get_q_scores_and_mu(double** q_scores);
+    void get_q_scores_and_mu(std::vector<std::vector<double>> &q_scores);
 
     // Allocate rate according to the std_array
     void allocate_rate();
 
     // normalize q_scores with mu vector and V matrix
-    void normalize_q_scores(double** q_scores);
+    void normalize_q_scores(std::vector<std::vector<double>> &q_scores);
 
     // Get x_array();
     void get_x_array();
 
     // Get covariance matrix
-    void get_cov(double** q_scores);
+    void get_cov(std::vector<std::vector<double>> &q_scores);
 
     // Do SVD
     void do_svd();

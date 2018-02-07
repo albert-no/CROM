@@ -31,7 +31,7 @@ void CROM_encoder::set_x(std::vector<double> &x_in) {
     }
 }
 
-void CROM_encoder::set_x_from_array(double** x_array_in, int idx, bool vertical) {
+void CROM_encoder::set_x_from_array(std::vector<std::vector<double>> &x_array_in, int idx, bool vertical) {
     int x_iter;
     if (vertical) {
         for (x_iter=0; x_iter<x_dim; x_iter++) {
