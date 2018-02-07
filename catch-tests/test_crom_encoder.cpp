@@ -18,14 +18,14 @@ TEST_CASE("CROM_encoder small test", "[CROM_encoder]") {
 
     SECTION( "test 1" ) {
         // test set_x and copy_x
-        double x[8] = {
+        std::vector<double> x = {
             1.17844, -0.365868,
             0.980685, 1.03383,
             1.42599, -1.04771,
             -0.570805, 0.929175};
         enc.set_x(x);
         
-        double x_copy[8];
+        std::vector<double> x_copy(x_dim);
         enc.copy_x(x_copy);
 
         for (x_iter=0; x_iter<x_dim; x_iter++) {
@@ -40,15 +40,13 @@ TEST_CASE("CROM_encoder small test", "[CROM_encoder]") {
         enc.run();
 
         // check message array
-        int *m_arr = new int[L];
-        enc.copy_m_array(m_arr);
-        std::vector<int> v_m_arr(m_arr, m_arr + L);
+        std::vector<int> v_m_arr(L);
+        enc.copy_m_array(v_m_arr);
         std::vector<int> v_m_arr_expected {2, 7, 0};
         CHECK( v_m_arr == v_m_arr_expected );
-        delete[] m_arr;
 
         // check x_remainder
-        double x_rem[8] = {
+        std::vector<double> x_rem = {
             -0.4673188324,
             -1.3669546712,
             -0.9557097795,

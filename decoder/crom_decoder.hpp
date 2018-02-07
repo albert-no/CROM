@@ -4,16 +4,15 @@
 #ifndef CROM_DECODER_H
 #define CROM_DECODER_H
 
-#include <cstdlib>
 #include <cmath>
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
+#include <vector>
 
-#include "../utils/matrix_multiplication.hpp"
 #include "../utils/crom_util.hpp"
+#include "../utils/matrix_multiplication.hpp"
 
-// void CROM_decoding_step(double *x, int x_dim, double scale, int m);
-// void CROM_decoder(double *xhat, int x_dim, int L, int *m_array, bool verbose);
 
 class CROM_decoder {
     /* CROM decoder with k=1 
@@ -29,12 +28,13 @@ class CROM_decoder {
         name :: name of the object
     */
 
-    double *x_hat;
-    int x_dim;
     int L;
-    int *m_array;
+    int x_dim;
     bool verbose;
+
     std::string name;
+    std::vector<double> x_hat;
+    std::vector<int> m_array;
 
     // Single iteration of CROM_decoder with k=1
     // scale :: scale factor of iteration
@@ -49,7 +49,7 @@ public:
     ~CROM_decoder();
 
     // set the array of messages (m_array) via copying from m_array_in
-    void set_m_array(int *m_array_in);
+    void set_m_array(std::vector<int> &m_array_in);
 
     // read the array of messages (m_array) from either binary or txt file
     void read_m_array(bool binary);
@@ -58,7 +58,7 @@ public:
     void run();
 
     // read x_hat via copying to x_hat_copy
-    void copy_x_hat(double *x_hat_copy);
+    void copy_x_hat(std::vector<double> &x_hat_copy);
 
     // write x_hat
     void write_x_hat();
