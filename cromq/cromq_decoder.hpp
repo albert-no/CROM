@@ -1,6 +1,6 @@
-// cromq_encoder.hpp
-#ifndef CROMQ_ENCODER_H
-#define CROMQ_ENCODER_H
+// cromq_decoder.hpp
+#ifndef CROMQ_DECODER_H
+#define CROMQ_DECODER_H
 
 #include <cmath>
 #include <fstream>
@@ -11,13 +11,13 @@
 
 #include <Eigen/SVD>
 
-#include "../encoder/crom_encoder.hpp"
 #include "cromq_util.hpp"
+#include "../decoder/crom_decoder.hpp"
 
 /* 
 */
 
-class CROMq_encoder
+class CROMq_decoder
 {
     /* read file and split rate and run CROM
 
@@ -37,6 +37,7 @@ class CROMq_encoder
 
     std::string name;
     std::string fname;
+
     int id;
     int num_x;
     int x_dim;
@@ -46,14 +47,16 @@ class CROMq_encoder
 
     // Extract from original q scores
     std::vector<double> mu;
-    std::vector<std::vector<double>> cov;
 
     // Result of SVD of covariance matrix
     std::vector<std::vector<double>> v_mat;
     std::vector<double> std_array;
 
-    // Normalized q scores
-    std::vector<std::vector<double>> x_array;
+    // x_hat before unnormalize
+    std::vector<std::vector<double>> x_hat_array;
+
+    // reconstructed q_scores
+    std::vector<std::vector<char>> q_scores;
 
     // Allocated rates
     std::vector<double> R_array;
@@ -61,34 +64,29 @@ class CROMq_encoder
     // Number of nonzero rate
     int num_nonzero_rate;
 
-    // read qscores and compute mu
-    void get_q_scores_and_mu(std::vector<std::vector<double>> &q_scores);
+    // read mu, v_mat, std_array (we do not need cov)
+    void get_svd_params();
+
+    // round q_score into char format
+    char q_score_round(double q_score);
 
     // normalize q_scores with mu vector and V matrix
-    void normalize_q_scores(std::vector<std::vector<double>> &q_scores);
+    void unnormalize_q_scores();
 
-    // Get x_array();
-    void get_x_array();
-
-    // Get covariance matrix
-    void get_cov(std::vector<std::vector<double>> &q_scores);
-
-    // Do SVD
-    void do_svd();
-
-    // write mu_array, std_array, v_mat
-    void write_svd_params();
+    // write q_scores
+    void write_q_scores();
 
 
 public:
     // Constructor
-    CROMq_encoder(std::string name_in, std::string fname_in, int id_in, int num_x_in,
-                  int x_dim_in, double rd_param_in, double R_overall_in, bool verbose);
+    CROMq_decoder(std::string name_in, std::string fname_in, int id_in,
+                  int num_x_in, int x_dim_in, double rd_param_in, double R_overall_in,
+                  bool verbose);
 
     // Destructor
-    ~CROMq_encoder();
+    ~CROMq_decoder();
 
-    // Run CROMq_encoder
+    // Run CROMq_decoder
     void run();
 };
 

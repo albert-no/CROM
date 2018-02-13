@@ -5,19 +5,20 @@
 #define SRAND_SEED 5298
 #define EPSILON 1e-6
 
-#include "catch.hpp"
 #include "../../encoder/crom_encoder.hpp"
 #include "../../decoder/crom_decoder.hpp"
 #include "../../utils/crom_util.hpp"
 #include "../cromq_encoder.hpp"
-//#include "../cromq_decoder.hpp"
+#include "../cromq_decoder.hpp"
 
 using namespace std;
 
 int main() {
-    double R = 1;
+    double R_enc = 0.05;
+    double R_dec = 0.04;
     double rd_param = 1.4;
 
+    int id = 0;
     int xdim = TEST_BLOCKLENGTH;
     int num_x = 36;
     bool verbose = false;
@@ -31,13 +32,15 @@ int main() {
 
     cromq_time = std::clock();
 
-    CROMq_encoder enc(name, fname, num_x, xdim, rd_param, R, verbose);
-
+    CROMq_encoder enc(name, fname, id, num_x, xdim, rd_param, R_enc, verbose);
     enc.run();
 
     cromq_time = std::clock() - cromq_time;
 
     std::cout << "time = " << ((double)cromq_time / (double)CLOCKS_PER_SEC) << std::endl;
+
+    CROMq_decoder dec(name, fname, id, num_x, xdim, rd_param, R_dec, true);
+    dec.run();
     return 0;
 }
 

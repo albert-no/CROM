@@ -6,6 +6,7 @@ using namespace Eigen;
 
 CROMq_encoder::CROMq_encoder(std::string name_in,
                             std::string fname_in,
+                            int id_in,
                             int num_x_in,
                             int x_dim_in,
                             double rd_param_in,
@@ -15,6 +16,7 @@ CROMq_encoder::CROMq_encoder(std::string name_in,
 
     name = name_in;
     fname = fname_in;
+    id = id_in;
     num_x = num_x_in;
     x_dim = x_dim_in;
     rd_param = rd_param_in;
@@ -161,6 +163,35 @@ void CROMq_encoder::do_svd() {
         }
         std::cout << std::endl << std::endl;
     }
+
+    // write svd_params
+    write_svd_params();
+}
+
+void CROMq_encoder::write_svd_params() {
+    std::string mu_fname, v_mat_fname, std_array_fname;
+
+    mu_fname = get_mu_fname(name, id);
+    v_mat_fname = get_v_mat_fname(name, id);
+    std_array_fname = get_std_array_fname(name, id);
+
+    std::ofstream mu_file(mu_fname);
+    std::ofstream v_mat_file(v_mat_fname);
+    std::ofstream std_array_file(std_array_fname);
+
+    int row_idx, col_idx;
+    for (row_idx=0; row_idx<num_x; row_idx++) {
+        mu_file << mu[row_idx] << std::endl;
+        std_array_file << std_array[row_idx] << std::endl;
+        for (col_idx=0; col_idx<num_x; col_idx++) {
+            v_mat_file << v_mat[row_idx][col_idx] << " ";
+        }
+        v_mat_file << std::endl;
+    }
+
+    mu_file.close();
+    std_array_file.close();
+    v_mat_file.close();
 }
 
 void CROMq_encoder::normalize_q_scores(std::vector<std::vector<double>> &q_scores) {
@@ -220,47 +251,6 @@ void CROMq_encoder::get_x_array() {
     }
 }
 
-void CROMq_encoder::allocate_rate() {
-    /* Allocate rate according to the std_array
-       Assuming D = e^{-1.4R} */
-
-    std::vector<double> log_var_array(num_x);
-    double sum_log_var = 0;
-    double logD;
-    int idx;
-
-    if (verbose)
-        std::cout << "Allocating Rates" << std::endl;
-
-    for (idx=0; idx<num_x; idx++) {
-        log_var_array[idx] = 2 * log(std_array[idx]);
-        sum_log_var += log_var_array[idx];
-    }
-
-    for (num_nonzero_rate=num_x; num_nonzero_rate>0; num_nonzero_rate--) {
-        // solve :: (1/num_x) \sum log(sigma_i^2/D) = rd_param * R
-        logD = sum_log_var / (double)num_x - rd_param * R_overall;
-        if (logD <= log_var_array[num_nonzero_rate-1]) {
-            for (idx=0; idx<num_nonzero_rate; idx++) {
-                // allocate rates with following rule
-                // R_i = (1/rd_param) * log(sigma^2/D)
-                R_array[idx] = (log_var_array[idx] - logD) / rd_param;
-            }
-            break;
-        }
-
-        // assign zero rate for those subsequence with low variance
-        R_array[num_nonzero_rate-1] = 0;
-    }
-
-    if (verbose) {
-        for (idx=0; idx<num_x; idx++) {
-            std::cout << std::setprecision(3) << R_array[idx] << " ";
-        }
-        std::cout << std::endl << std::endl;
-    }
-}
-
 void CROMq_encoder::run() {
 
     std::string subname;
@@ -270,7 +260,9 @@ void CROMq_encoder::run() {
     get_x_array();
 
     //allocate_rate
-    allocate_rate();
+    if (verbose)
+        std::cout << "allocating rate" << std::endl;
+    num_nonzero_rate = allocate_rate(std_array, R_array, num_x, rd_param, R_overall);
 
     // FIXME define default constructor
     // FIXME define copyable object and use vector
@@ -281,9 +273,8 @@ void CROMq_encoder::run() {
 
     for (subseq_idx=0; subseq_idx<num_x; subseq_idx++) {
         // declare sub_encoder
-        subname = (name + "_id_" + std::to_string(0) + "_subid_" +
+        subname = (name + "_id_" + std::to_string(id) + "_subid_" +
                    std::to_string(subseq_idx));
-        std::cout << "Add " << subseq_idx << "-th subencoder to subencoder array" << std::endl;
         if (verbose) {
             std::cout << "x_dim =  " << x_dim << std::endl;
         }

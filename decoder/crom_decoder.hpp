@@ -48,6 +48,10 @@ public:
     // Destructor
     ~CROM_decoder();
 
+    // copy reconstructed x to x_array
+    // this feature is being used in CROMq
+    void set_x_to_array(std::vector<std::vector<double>> &x_array, int idx, bool vertical);
+
     // set the array of messages (m_array) via copying from m_array_in
     void set_m_array(std::vector<int> &m_array_in);
 

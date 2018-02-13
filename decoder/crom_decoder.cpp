@@ -5,17 +5,36 @@
 
 // Constructor
 CROM_decoder::CROM_decoder(std::string name_in, int x_dim_in, int L_in, bool verbose_in) {
+    int x_iter;
     name = name_in;
     x_dim = x_dim_in;
     L = L_in;
     verbose = verbose_in;
 
     x_hat.resize(x_dim);
+    for (x_iter=0; x_iter<x_dim; x_iter++) {
+        x_hat[x_iter] = 0;
+    }
+
     m_array.resize(L);
 }
 
 // Destructor
 CROM_decoder::~CROM_decoder() {
+}
+
+void CROM_decoder::set_x_to_array(std::vector<std::vector<double>> &x_array, int idx, bool vertical) {
+    int x_iter;
+    if (vertical) {
+        for (x_iter=0; x_iter<x_dim; x_iter++) {
+            x_array[x_iter][idx] = x_hat[x_iter];
+        }
+    }
+    else {
+        for (x_iter=0; x_iter<x_dim; x_iter++) {
+            x_array[idx][x_iter] = x_hat[x_iter];
+        }
+    }
 }
 
 void CROM_decoder::set_m_array(std::vector<int> &m_array_in) {
