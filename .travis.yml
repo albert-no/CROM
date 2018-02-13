@@ -17,6 +17,9 @@ script:
     - cd catch-tests
     - make
     - ./test_crom.o
+    - cd ../cromq/tests/
+    - make
+    - ./test_CROMq.o
 addons:
     apt:
         sources:
