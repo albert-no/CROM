@@ -10,6 +10,7 @@
 #include "../../utils/crom_util.hpp"
 #include "../cromq_encoder.hpp"
 #include "../cromq_decoder.hpp"
+#include "../cromq_util.hpp"
 
 using namespace std;
 
@@ -32,15 +33,22 @@ int main() {
 
     cromq_time = std::clock();
 
-    CROMq_encoder enc(name, fname, id, num_x, xdim, rd_param, R_enc, verbose);
-    enc.run();
+    // CROMq_encoder enc(name, fname, id, num_x, xdim, rd_param, R_enc, verbose);
+    // enc.run();
 
-    cromq_time = std::clock() - cromq_time;
+    // cromq_time = std::clock() - cromq_time;
 
-    std::cout << "time = " << ((double)cromq_time / (double)CLOCKS_PER_SEC) << std::endl;
+    // std::cout << "time = " << ((double)cromq_time / (double)CLOCKS_PER_SEC) << std::endl;
 
-    CROMq_decoder dec(name, fname, id, num_x, xdim, rd_param, R_dec, true);
-    dec.run();
+    // CROMq_decoder dec(name, fname, id, num_x, xdim, rd_param, R_dec, true);
+    // dec.run();
+
+    std::string ifname = "sample.qscore";
+    std::string ofname = "cromq_test_id_0_out.txt";
+
+    double distortion;
+    distortion = compute_distortion(ifname, ofname, num_x, xdim);
+    std::cout << "distortion = " << distortion << std::endl;
     return 0;
 }
 

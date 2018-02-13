@@ -53,3 +53,30 @@ std::string get_std_array_fname(std::string name, int id) {
     std_array_fname = "std_array_id_" + std::to_string(id) + "_" + name + ".txt";
     return std_array_fname;
 }
+
+double compute_distortion(std::string ifname, std::string ofname, int num_x, int x_dim) {
+    int row_idx, col_idx;
+    char q_orig, q_recon;
+    double distortion = 0;
+    double diff;
+
+    std::ifstream ifile(ifname);
+    std::ifstream ofile(ofname);
+    std::string iline, oline;
+
+    for (row_idx=0; row_idx<x_dim; row_idx++) {
+        std::getline(ifile, iline);
+        std::getline(ofile, oline);
+        std::stringstream ilineStream(iline);
+        std::stringstream olineStream(oline);
+
+        for (col_idx=0; col_idx<num_x; col_idx++) {
+            ilineStream >> q_orig;
+            olineStream >> q_recon;
+            diff = ((double)q_orig - (double)q_recon);
+            distortion += (diff*diff);
+        }
+    }
+    distortion /= (num_x * x_dim);
+    return distortion;
+}

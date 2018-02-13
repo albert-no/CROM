@@ -3,7 +3,9 @@
 #define CROMQ_UTIL_H
 
 #include <cmath>
+#include <fstream>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -61,4 +63,17 @@ std::string get_v_mat_fname(std::string fname, int id);
    std_array_fname:: file name that contains mu values */
 std::string get_std_array_fname(std::string fname, int id);
 
+/* Compute the distortion between original and the reconstructed q_scores
+
+   Parameters
+   ----------
+   ifname:: file name of original q_score
+   ofname:: file name of reconstructed q_score
+   num_x:: number of columns
+   x_dim:: dimension of x (number of rows)
+
+   Returns
+   -------
+   distortion:: normalized distortion between original and reconstructed q_scores */
+double compute_distortion(std::string ifname, std::string ofname, int num_x, int x_dim);
 #endif
