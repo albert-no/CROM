@@ -76,4 +76,17 @@ std::string get_std_array_fname(std::string fname, int id);
    -------
    distortion:: normalized distortion between original and reconstructed q_scores */
 double compute_distortion(std::string ifname, std::string ofname, int num_x, int x_dim);
+
+/* Get the output file name that has (or will have) reconstructed q_scores
+
+   Parameters
+   ----------
+   name:: name of CROMq decoder
+   id:: id
+   R_overall:: target rate
+
+   Returns
+   -------
+   ofname:: output file name */
+std::string get_ofname(std::string name, int id, double R_overall);
 #endif

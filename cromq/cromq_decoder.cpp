@@ -123,7 +123,9 @@ void CROMq_decoder::unnormalize_q_scores() {
 }
 
 void CROMq_decoder::write_q_scores() {
-    std::ofstream q_scores_file(name + "_id_" + std::to_string(id) + "_out.txt");
+    std::string q_scores_fname = get_ofname(name, id, R_overall);
+    std::ofstream q_scores_file(q_scores_fname);
+
     int row_idx, col_idx;
     for (row_idx=0; row_idx<x_dim; row_idx++) {
         for (col_idx=0; col_idx<num_x; col_idx++) {
@@ -164,7 +166,8 @@ void CROMq_decoder::run() {
                    std::to_string(subseq_idx));
 
         L = static_cast<int> (n * R_array[subseq_idx] / log(n));
-        std::cout << "L = " << L << std::endl;
+        if (verbose)
+            std::cout << "L = " << L << std::endl;
         CROM_decoder subdec(subname, x_dim, L, false);
 
         // read m_array from file

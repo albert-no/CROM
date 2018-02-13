@@ -80,3 +80,9 @@ double compute_distortion(std::string ifname, std::string ofname, int num_x, int
     distortion /= (num_x * x_dim);
     return distortion;
 }
+
+std::string get_ofname(std::string name, int id, double R_overall) {
+    std::string ofname;
+    ofname = (name + "_id_" + std::to_string(id) + "_Rate_" + std::to_string(R_overall) + "_out.txt");
+    return ofname;
+}
