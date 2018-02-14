@@ -6,7 +6,7 @@
 #define EPSILON 1e-6
 
 #include "catch.hpp"
-#include "../utils/CROM_util.hpp"
+#include "../utils/crom_util.hpp"
 
 using namespace std;
 
