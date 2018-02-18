@@ -45,7 +45,7 @@ int generate_subqscore_files(std::string name, std::string fname, std::vector<st
     }
     qscore_file.close();
 
-    return file_idx-1;
+    return file_idx;
 }
 
 
@@ -76,7 +76,7 @@ int main() {
 
     // Setup decoding parameters here
     // *********************
-    int file_idx = 2;
+    int file_idx = 3;
     int num_dec_pts = 2;
     std::vector<double> R_dec = {0.05, 0.09};
     // *********************
@@ -97,7 +97,7 @@ int main() {
 
             // Run CROMq encoder
             std::clock_t run_time;
-            for (int cromq_idx=0; cromq_idx<file_idx; cromq_idx++) {
+            for (int cromq_idx=0; cromq_idx<file_idx-1; cromq_idx++) {
                 run_time = std::clock();
                 std::cout << "Processing " << subfnames[cromq_idx] << std::endl;
                 CROMq_encoder enc(name, subfnames[cromq_idx], cromq_idx, num_x, xdim, rd_param, R_enc, verbose);
@@ -112,7 +112,7 @@ int main() {
             std::clock_t run_time;
             std::vector<std::string> subfnames;
             get_subfnames(name, subfnames, file_idx);
-            for (int cromq_idx=0; cromq_idx<file_idx; cromq_idx++) {
+            for (int cromq_idx=0; cromq_idx<file_idx-1; cromq_idx++) {
                 for (int dec_idx=0; dec_idx<num_dec_pts; dec_idx++) {
                     run_time = std::clock();
                     std::cout << "Processing " << subfnames[cromq_idx] << " at rate = " << R_dec[dec_idx] << std::endl;
