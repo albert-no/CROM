@@ -3,8 +3,7 @@ CROMq is a lossy compression algorithm for quality values.
 
 ## Installing
 CROMq can only be used on Linux.
-
-It requires fftw3. To download, please check [here](http://www.fftw.org/download.html).
+CROMq requires fftw3. To download, please check [here](http://www.fftw.org/download.html).
 The following is an example command of installation.
 
 ```
