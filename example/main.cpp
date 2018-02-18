@@ -7,8 +7,8 @@
 #include <string>
 #include <vector>
 
-#include "./cromq/cromq_decoder.hpp"
-#include "./cromq/cromq_encoder.hpp"
+#include "../cromq/cromq_decoder.hpp"
+#include "../cromq/cromq_encoder.hpp"
 
 int main() {
     // Setup parameters here

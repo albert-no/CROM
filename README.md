@@ -24,4 +24,4 @@ awk NR%4==0 SRR494099.fastq >> SRR494099.qscore
 Note that the file must end with `.qscore`.
 
 ## Usage
-Please check [here](example/README.md) for example main code.
+Please check [here](example/README.md) to see how to execute the example code.
