@@ -17,7 +17,7 @@
 
 using namespace std;
 
-TEST_CASE("CROMq_full", "[CROMq_full") {
+TEST_CASE("CROMq_full", "[CROMq_full]") {
     double R_enc = 5;
     double rd_param = 1.4;
 

@@ -11,3 +11,9 @@
 # Temporary files#
 ##################
 *.swp
+
+# BIG TEST FILE #
+#################
+SRR494099.qscore
+SRR494099_big.qscore
+*SRR494099.txt
