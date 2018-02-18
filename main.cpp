@@ -19,7 +19,7 @@ int main() {
     double rd_param = 1.4;
     bool verbose = false;
     // double R_enc = 2;
-    double R_enc = 0.1;
+    double R_enc = 2;
     int num_dec_pts = 4;
     // std::vector<double> R_dec = {0.5, 1, 1.5, 2};
     // *********************
@@ -51,14 +51,14 @@ int main() {
         subfnames.push_back(subfname);
         std::ofstream qscore_subfile(subfname);
 
+        end_indicator = false;
         while(std::getline(qscore_file, line)) {
             qscore_subfile << line << std::endl;
             line_idx++;
-            if (line_idx == xdim)
+            if (line_idx == xdim) {
+                end_indicator = true;
                 break;
-        }
-        if (line_idx != xdim) {
-            end_indicator = false;
+            }
         }
         qscore_subfile.close();
         line_idx = 0;
@@ -70,13 +70,13 @@ int main() {
 
     // Run CROMq
     std::clock_t run_time;
-    for (int cromq_idx=0; cromq_idx<file_idx; cromq_idx++) {
+    for (int cromq_idx=0; cromq_idx<file_idx-1; cromq_idx++) {
         run_time = std::clock();
         std::cout << "Processing " << subfnames[cromq_idx] << std::endl;
         CROMq_encoder enc(name, subfnames[cromq_idx], cromq_idx, num_x, xdim, rd_param, R_enc, verbose);
         enc.run();
         run_time = std::clock() - run_time;
-        std::cout << std::endl << "It took " << ((double)run_time / (double)CLOCKS_PER_SEC) << " seconds" << std::endl;
+        std::cout << "It took " << ((double)run_time / (double)CLOCKS_PER_SEC) << " seconds" << std::endl << std::endl;
     }
 
     return 0;
