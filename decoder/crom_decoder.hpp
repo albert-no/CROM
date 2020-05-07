@@ -34,7 +34,6 @@ class CROM_decoder {
 
     std::string name;
     std::vector<double> x_hat;
-    std::vector<int> m_array;
 
     // Single iteration of CROM_decoder with k=1
     // scale :: scale factor of iteration
@@ -42,6 +41,8 @@ class CROM_decoder {
     void step(double scale, int m);
 
 public:
+    std::vector<int> m_array;
+
     // Constructor
     CROM_decoder(std::string name_in, int x_dim_in, int L_in, bool verbose_in);
 

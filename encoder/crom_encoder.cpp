@@ -12,7 +12,7 @@ CROM_encoder::CROM_encoder(std::string name_in, int x_dim_in, double R_in, bool 
 
     // compute the number of iterations
     double n = static_cast<double> (x_dim);
-    L = static_cast<int> (n*R/log(n));
+    L = static_cast<int> (n*R/log2(n));
 
     // allocate memory
     m_array.resize(L);
@@ -199,8 +199,30 @@ void CROM_encoder::write_m_array(bool binary) {
     if (binary) {
         filename = "m_array_" + name + ".bin";
         std::ofstream m_outfile (filename, std::ios::binary);
+
+        int logn = int(log2(x_dim));
+        unsigned char bit_buffer = 0;
+        int current_bit = 0;
+
         for (line_idx=0; line_idx<L; line_idx++) {
-            m_outfile.write((char *)& m_array[line_idx], sizeof(m_array[line_idx]));
+            int m = m_array[line_idx];
+            for (int m_idx=0; m_idx<logn; m_idx++) {
+                if (m % 2 == 1){
+                    bit_buffer |= (1<<current_bit);
+                }
+                current_bit++;
+                m = m >> 1;
+                // write one byte at a time
+                if (current_bit == 8) {
+                    m_outfile.write((char *)&bit_buffer, 1);
+                    current_bit = 0;
+                    bit_buffer = 0;
+                }
+
+            }
+        }
+        if (current_bit != 0) {
+            m_outfile.write((char *)&bit_buffer, 1);
         }
         m_outfile.close();
     }

@@ -36,7 +36,6 @@ class CROM_encoder
     std::string name;
 
     std::vector<double> x;
-    std::vector<int> m_array;
     std::vector<double> l2_array;
 
     // Single iteration of CROM_encoder with k=1
@@ -44,6 +43,8 @@ class CROM_encoder
     int step(double scale);
 
 public:
+    std::vector<int> m_array;
+
     // Constructor
     CROM_encoder(std::string name_in, int x_dim_in, double R_in, bool verbose_in);
 

@@ -34,7 +34,7 @@ TEST_CASE("CROM_encoder small test", "[CROM_encoder]") {
 
         // check get_L
         int L = enc.get_L();
-        CHECK( L == 3 );
+        CHECK( L == 2 );
 
         // run encoder
         enc.run();
@@ -42,19 +42,19 @@ TEST_CASE("CROM_encoder small test", "[CROM_encoder]") {
         // check message array
         std::vector<int> v_m_arr(L);
         enc.copy_m_array(v_m_arr);
-        std::vector<int> v_m_arr_expected {2, 7, 0};
+        std::vector<int> v_m_arr_expected {2, 7};
         CHECK( v_m_arr == v_m_arr_expected );
 
         // check x_remainder
         std::vector<double> x_rem = {
-            -0.4673188324,
-            -1.3669546712,
-            -0.9557097795,
-            -0.1965084036,
-            0.5728391238,
-            0.2799289636,
-            0.3629543445,
-            -0.6427417279};
+            0.9534921436,
+            1.1087915374,
+            -0.1626545328,
+            1.4059838186,
+            0.5973543579,
+            -0.3519658329,
+            0.2220000792,
+            0.2931273772};
         enc.copy_x(x_copy);
         for (x_iter=0; x_iter<x_dim; x_iter++) {
             CHECK( x_rem[x_iter] == Approx(x_copy[x_iter]).epsilon(EPSILON) );

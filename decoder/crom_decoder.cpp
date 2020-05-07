@@ -52,8 +52,30 @@ void CROM_decoder::read_m_array(bool binary) {
     if (binary) {
         filename = "m_array_" + name + ".bin";
         std::ifstream m_infile (filename, std::ios::binary);
-        for (line_idx=0; line_idx<L; line_idx++) {
-            m_infile.read((char *)& m_array[line_idx], sizeof(m_array[line_idx]));
+
+        int logn = int(log2(x_dim));
+        int m_byte = 0;
+        int m = 0;
+        int line_idx = 0;
+        int current_bit = 0;
+        while (1) {
+            m_byte = m_infile.get();
+            if (m_byte == EOF) break;
+            // 8 is for byte
+            for (int m_idx=0; m_idx<8; m_idx++) {
+                if (m_byte % 2 == 1) {
+                    m |= (1<<current_bit);
+                }
+                current_bit++;
+                m_byte = m_byte >> 1;
+                if (current_bit == logn) {
+                    m_array[line_idx] = m;
+                    current_bit = 0;
+                    m = 0;
+                    line_idx ++;
+                }
+            }
+            
         }
         m_infile.close();
     }
