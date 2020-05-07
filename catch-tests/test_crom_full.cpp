@@ -24,12 +24,12 @@ TEST_CASE("CROM_full small test", "[CROM_full]") {
         -0.4684, 0.0454221,
         1.56657, 1.44174};
     std::vector<double> xhat_expected = {
-        -0.4883347668, 0.3162271728,
-        -0.0086511553, 0.375842363,
-        -0.5104244858, 0.1219668209,
-        0.23900423, 0.825249401};
+        0.3242422686, 0.4956558206,
+        -0.2298645089, 0.052627506,
+        -0.5544759478, 0.4392036524,
+        0.0856275042, 1.2431619107};
 
-    std::vector<int> v_m_arr_expected {3, 1, 1};
+    std::vector<int> v_m_arr_expected {3, 1};
     std::vector<double> xhat(TEST_BLOCKLENGTH);
 
     CROM_encoder enc (name, xdim, R, verbose);
@@ -42,7 +42,7 @@ TEST_CASE("CROM_full small test", "[CROM_full]") {
 
         // check L
         int L = enc.get_L();
-        CHECK( L == 3 );
+        CHECK( L == 2 );
 
         // encoding and check m_array
         enc.run();
@@ -72,7 +72,7 @@ TEST_CASE("CROM_full small test", "[CROM_full]") {
         double l2dist;
         l2dist = compute_l2_dist(x_save, xhat, xdim);
         l2dist /= static_cast<double> (xdim);
-        CHECK( l2dist == Approx(0.2819860781) );
+        CHECK( l2dist == Approx(0.4831738334) );
     }
 
     SECTION( "write and read m_array using txt file" ) {
@@ -105,7 +105,7 @@ TEST_CASE("CROM_full small test", "[CROM_full]") {
         double l2dist;
         l2dist = compute_l2_dist(x_save, xhat, xdim);
         l2dist /= static_cast<double> (xdim);
-        CHECK( l2dist == Approx(0.2819860781) );
+        CHECK( l2dist == Approx(0.4831738334) );
     }
 
     SECTION( "write and read m_array using binary file" ) {
@@ -113,33 +113,36 @@ TEST_CASE("CROM_full small test", "[CROM_full]") {
         enc.set_x(x);
         enc.copy_x(x_save);
         int L = enc.get_L();
-
+ 
         // encoding and check m_array
         enc.run();
-
+ 
         // write_m_array in binary file
         enc.write_m_array(true);
-
+ 
         // decoding and set m_array
         CROM_decoder dec (name, xdim, L, verbose);
         dec.read_m_array(true);
-
+        for (int line_iter=0; line_iter<L; line_iter++){
+            CHECK( enc.m_array[line_iter] == dec.m_array[line_iter] );
+        }
+ 
         // decoding
         dec.run();
         dec.copy_x_hat(xhat);
         for (x_iter=0; x_iter< xdim; x_iter++) {
             CHECK( xhat[x_iter] == Approx(xhat_expected[x_iter]).epsilon(EPSILON) );
         }
-
+ 
         // check write_x_hat
         dec.write_x_hat();
-
+ 
         // check final l2 distance between xhat and x
         double l2dist;
         l2dist = compute_l2_dist(x_save, xhat, xdim);
         l2dist /= static_cast<double> (xdim);
-        CHECK( l2dist == Approx(0.2819860781) );
-
+        CHECK( l2dist == Approx(0.4831738334) );
+ 
         // compare final l2 distance and encoder's l2_array
         std::vector<double> l2_array_copy(L);
         enc.copy_l2_array(l2_array_copy);
