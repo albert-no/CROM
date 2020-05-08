@@ -47,14 +47,10 @@ TEST_CASE("CROM_encoder small test", "[CROM_encoder]") {
 
         // check x_remainder
         std::vector<double> x_rem = {
-            0.9534921436,
-            1.1087915374,
-            -0.1626545328,
-            1.4059838186,
-            0.5973543579,
-            -0.3519658329,
-            0.2220000792,
-            0.2931273772};
+            1.0356518916, 1.234557798,
+            -0.1605699271, 1.2903705825,
+            0.572788905, -0.2512650735,
+            0.3344984072, 0.3530898639};
         enc.copy_x(x_copy);
         for (x_iter=0; x_iter<x_dim; x_iter++) {
             CHECK( x_rem[x_iter] == Approx(x_copy[x_iter]).epsilon(EPSILON) );

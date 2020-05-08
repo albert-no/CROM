@@ -76,11 +76,11 @@ void CROMq_encoder::get_q_scores_and_mu(std::vector<std::vector<double>> &q_scor
     // normalize mu
     for (col_idx=0; col_idx<num_x; col_idx++) {
         mu[col_idx] /= (double) x_dim;
-        if (verbose)
-            std::cout << std::setprecision(3) << mu[col_idx] << " ";
+        // if (verbose)
+        //     std::cout << std::setprecision(3) << mu[col_idx] << " ";
     }
-    if (verbose)
-        std::cout << std::endl << std::endl;
+    // if (verbose)
+    //     std::cout << std::endl << std::endl;
 }
 
 void CROMq_encoder::get_cov(std::vector<std::vector<double>> &q_scores) {
@@ -118,15 +118,15 @@ void CROMq_encoder::get_cov(std::vector<std::vector<double>> &q_scores) {
             cov[idx2][idx1] = cov[idx1][idx2];
         }
     }
-    if (verbose) {
-        for (idx1=0; idx1<num_x; idx1++) {
-            for(idx2=0; idx2<num_x; idx2++) {
-                std::cout << std::setprecision(3) << cov[idx1][idx2] << " ";
-            }
-            std::cout << std::endl;
-        }
-        std::cout << std::endl << std::endl;
-    }
+    // if (verbose) {
+    //     for (idx1=0; idx1<num_x; idx1++) {
+    //         for(idx2=0; idx2<num_x; idx2++) {
+    //             std::cout << std::setprecision(3) << cov[idx1][idx2] << " ";
+    //         }
+    //         std::cout << std::endl;
+    //     }
+    //     std::cout << std::endl << std::endl;
+    // }
 }
 
 void CROMq_encoder::do_svd() {
@@ -147,22 +147,22 @@ void CROMq_encoder::do_svd() {
     sValues = svd.singularValues();
     vMatrix = svd.matrixV();
     for (row_idx=0; row_idx<num_x; row_idx++) {
-        std_array[row_idx] = sqrt(sValues(row_idx));
+        std_array[row_idx] = sValues(row_idx);
 
         for (col_idx=0; col_idx<num_x; col_idx++) {
             v_mat[row_idx][col_idx] = vMatrix(row_idx, col_idx);
         }
     }
-    if (verbose) {
-        for (row_idx=0; row_idx<num_x; row_idx++) {
-            std::cout << std_array[row_idx] << " ";
-            for (col_idx=0; col_idx<num_x; col_idx++) {
-                std::cout << std::setprecision(3) << v_mat[row_idx][col_idx] << " ";
-            }
-            std::cout << std::endl;
-        }
-        std::cout << std::endl << std::endl;
-    }
+    // if (verbose) {
+    //     for (row_idx=0; row_idx<num_x; row_idx++) {
+    //         std::cout << std_array[row_idx] << " ";
+    //         for (col_idx=0; col_idx<num_x; col_idx++) {
+    //             std::cout << std::setprecision(3) << v_mat[row_idx][col_idx] << " ";
+    //         }
+    //         std::cout << std::endl;
+    //     }
+    //     std::cout << std::endl << std::endl;
+    // }
 
     // write svd_params
     write_svd_params();
@@ -239,16 +239,16 @@ void CROMq_encoder::get_x_array() {
     // normalized q score. this sets x_array
     normalize_q_scores(q_scores);
 
-    if (verbose) {
-        std::cout << std::endl;
-        std::cout << "print x array" << std::endl;
-        for (row_idx=0; row_idx<x_dim; row_idx++) {
-            for (col_idx=0; col_idx<num_x; col_idx++) {
-                std::cout << x_array[row_idx][col_idx] << " ";
-            }
-            std::cout << std::endl;
-        }
-    }
+    // if (verbose) {
+    //     std::cout << std::endl;
+    //     std::cout << "print x array" << std::endl;
+    //     for (row_idx=0; row_idx<x_dim; row_idx++) {
+    //         for (col_idx=0; col_idx<num_x; col_idx++) {
+    //             std::cout << x_array[row_idx][col_idx] << " ";
+    //         }
+    //         std::cout << std::endl;
+    //     }
+    // }
 }
 
 void CROMq_encoder::run() {
@@ -263,6 +263,11 @@ void CROMq_encoder::run() {
     if (verbose)
         std::cout << "allocating rate" << std::endl;
     num_nonzero_rate = allocate_rate(std_array, R_array, num_x, rd_param, R_overall);
+    if (verbose) {
+        for (subseq_idx=0; subseq_idx<num_x; subseq_idx++) {
+            std::cout << R_array[subseq_idx] << std::endl;
+        }
+    }
 
     // FIXME define default constructor
     // FIXME define copyable object and use vector
