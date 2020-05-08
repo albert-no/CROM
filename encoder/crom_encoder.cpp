@@ -89,8 +89,8 @@ int CROM_encoder::step(double scale) {
 
 void CROM_encoder::run() {
     double n = static_cast<double> (x_dim);
-    double logn = log(n);
-    int long_logn = static_cast<int> (logn);
+    double log2n = log2(n);
+    int long_logn = static_cast<int> (log2n);
 
     int half_len = x_dim/2;
     int x_start_idx = 0;
@@ -101,13 +101,13 @@ void CROM_encoder::run() {
     std::vector<double> thetas(half_len);
     std::vector<double> xout(x_dim);
 
-    double scale = sqrt(n*(1-exp(-2*log(n)/n)));
-    double scale_factor= exp(-log(n)/n);
+    double scale = sqrt(n*(1-exp(-2*log2n/n)));
+    double scale_factor= exp(-log2n/n);
     double uni_rand;
 
     // At i-th iteration,
     // scale = sqrt(n*(1-exp(-2*R/rawL))) * exp(-i*R/rawL)
-    // Note that R/L = log(n)/n
+    // Note that R/L = log2(n)/n
     int iter_idx;
     int theta_idx;
     int m;

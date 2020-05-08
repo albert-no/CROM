@@ -73,6 +73,10 @@ void CROM_decoder::read_m_array(bool binary) {
                     current_bit = 0;
                     m = 0;
                     line_idx ++;
+                    if(line_idx == L) {
+                        m_infile.close();
+                        return;
+                    }
                 }
             }
             
@@ -112,34 +116,45 @@ void CROM_decoder::step(double scale, int m) {
 
 void CROM_decoder::run() {
     double n = static_cast<double> (x_dim);
-    double logn = log(n);
-    int long_logn = static_cast<int> (logn);
+    double log2n = log2(n);
+    int long_logn = static_cast<int> (log2n);
 
-    int half_len = x_dim/2;
+    const int half_len = x_dim/2;
     int x_start_idx = 0;
     int theta_start_idx = 0;
     int mat_idx;
     int x_hat_idx;
 
-    std::vector<double> thetas_inv(half_len);
-    std::vector<double> xout(x_dim);
+    if (verbose) {
+        std::cout << "declare xout" << std::endl;
+    }
+    const int xout_size = x_dim;
+    std::vector<double> xout(xout_size);
 
-    double scale = sqrt(n*(1-exp(-2*log(n)/n)));
-    double scale_factor= exp(-log(n)/n);
+    if (verbose) {
+        std::cout << "declare thetas" << std::endl;
+    }
+    std::vector<double> thetas_inv(half_len);
+
+    double scale = sqrt(n*(1-exp(-2*log2n/n)));
+    double scale_factor= exp(-log2n/n);
     double uni_rand;
 
     // at i-th iterationof 
     // scale = [sqrt(n*(1-exp(-2*R/rawL))) * exp(-i*R/rawL)
-    // R/L = log(n)/n
+    // R/L = log2(n)/n
     int iter_idx;
     int theta_idx;
     int m;
     double l2norm;
 
     // setup scale
-    scale = sqrt(n*(1-exp(-2*log(n)/n))) * exp(-(L-1)*log(n)/n);
+    scale = sqrt(n*(1-exp(-2*log2n/n))) * exp(-(L-1)*log2n/n);
 
     // Set random seed for thetas
+    if (verbose) {
+        std::cout << "setup fftwplan" << std::endl;
+    }
     fftw_plan p;
     p = fftw_plan_r2r_1d(x_dim, x_hat.data(), xout.data(), FFTW_REDFT01, FFTW_MEASURE);
     for (iter_idx=L-1; iter_idx>=0; iter_idx--) {
@@ -173,9 +188,9 @@ void CROM_decoder::run() {
                                         mat_idx);
         // update scale with scale factor
         scale /= scale_factor;
-        if (verbose) {
-            print_vector(x_hat, x_dim);
-        }
+        // if (verbose) {
+        //     print_vector(x_hat, x_dim);
+        // }
     }
     fftw_destroy_plan(p);
 }

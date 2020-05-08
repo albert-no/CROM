@@ -24,10 +24,10 @@ TEST_CASE("CROM_full small test", "[CROM_full]") {
         -0.4684, 0.0454221,
         1.56657, 1.44174};
     std::vector<double> xhat_expected = {
-        0.3242422686, 0.4956558206,
-        -0.2298645089, 0.052627506,
-        -0.5544759478, 0.4392036524,
-        0.0856275042, 1.2431619107};
+        0.3392890937, 0.6149588236,
+        -0.1182672388, 0.0420118388,
+        -0.6236935673, 0.486715447,
+        0.1576231695, 1.3816954739};
 
     std::vector<int> v_m_arr_expected {3, 1};
     std::vector<double> xhat(TEST_BLOCKLENGTH);
@@ -72,7 +72,7 @@ TEST_CASE("CROM_full small test", "[CROM_full]") {
         double l2dist;
         l2dist = compute_l2_dist(x_save, xhat, xdim);
         l2dist /= static_cast<double> (xdim);
-        CHECK( l2dist == Approx(0.4831738334) );
+        CHECK( l2dist == Approx(0.4732532565) );
     }
 
     SECTION( "write and read m_array using txt file" ) {
@@ -105,7 +105,7 @@ TEST_CASE("CROM_full small test", "[CROM_full]") {
         double l2dist;
         l2dist = compute_l2_dist(x_save, xhat, xdim);
         l2dist /= static_cast<double> (xdim);
-        CHECK( l2dist == Approx(0.4831738334) );
+        CHECK( l2dist == Approx(0.4732532565) );
     }
 
     SECTION( "write and read m_array using binary file" ) {
@@ -141,7 +141,7 @@ TEST_CASE("CROM_full small test", "[CROM_full]") {
         double l2dist;
         l2dist = compute_l2_dist(x_save, xhat, xdim);
         l2dist /= static_cast<double> (xdim);
-        CHECK( l2dist == Approx(0.4831738334) );
+        CHECK( l2dist == Approx(0.4732532565) );
  
         // compare final l2 distance and encoder's l2_array
         std::vector<double> l2_array_copy(L);

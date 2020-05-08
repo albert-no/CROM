@@ -20,7 +20,7 @@ int allocate_rate(std::vector<double> &std_array, std::vector<double> &R_array, 
 
     for (num_nonzero_rate=num_x; num_nonzero_rate>0; num_nonzero_rate--) {
         // solve :: (1/num_x) \sum log2(sigma_i^2/D) = rd_param * R
-        logD = sum_log_var / (double)num_x - rd_param * R_overall;
+        logD = (sum_log_var - num_x * rd_param * R_overall) / (double)num_nonzero_rate;
         if (logD <= log_var_array[num_nonzero_rate-1]) {
             for (idx=0; idx<num_nonzero_rate; idx++) {
                 // allocate rates with following rule
@@ -32,6 +32,7 @@ int allocate_rate(std::vector<double> &std_array, std::vector<double> &R_array, 
 
         // assign zero rate for those subsequence with low variance
         R_array[num_nonzero_rate-1] = 0;
+        sum_log_var -= log_var_array[num_nonzero_rate-1];
     }
     return num_nonzero_rate;
 }

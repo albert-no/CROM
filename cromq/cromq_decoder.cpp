@@ -165,10 +165,10 @@ void CROMq_decoder::run() {
         subname = (name + "_id_" + std::to_string(id) + "_subid_" +
                    std::to_string(subseq_idx));
 
-        L = static_cast<int> (n * R_array[subseq_idx] / log(n));
+        L = static_cast<int> (n * R_array[subseq_idx] / log2(n));
         if (verbose)
             std::cout << "L = " << L << std::endl;
-        CROM_decoder subdec(subname, x_dim, L, false);
+        CROM_decoder subdec(subname, x_dim, L, true);
 
         // read m_array from file
         subdec.read_m_array(binary);
