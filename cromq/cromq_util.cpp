@@ -5,7 +5,7 @@
 int allocate_rate(std::vector<double> &std_array, std::vector<double> &R_array, int num_x,
                   double rd_param, double R_overall) {
     /* Allocate rate according to the std_array
-       Assuming D = e^{-1.4R} */
+       Assuming D = 2^{-1.4R} */
 
     std::vector<double> log_var_array(num_x);
     double sum_log_var = 0;
@@ -14,17 +14,17 @@ int allocate_rate(std::vector<double> &std_array, std::vector<double> &R_array, 
     int num_nonzero_rate;
 
     for (idx=0; idx<num_x; idx++) {
-        log_var_array[idx] = 2 * log(std_array[idx]);
+        log_var_array[idx] = 2 * log2(std_array[idx]);
         sum_log_var += log_var_array[idx];
     }
 
     for (num_nonzero_rate=num_x; num_nonzero_rate>0; num_nonzero_rate--) {
-        // solve :: (1/num_x) \sum log(sigma_i^2/D) = rd_param * R
+        // solve :: (1/num_x) \sum log2(sigma_i^2/D) = rd_param * R
         logD = sum_log_var / (double)num_x - rd_param * R_overall;
         if (logD <= log_var_array[num_nonzero_rate-1]) {
             for (idx=0; idx<num_nonzero_rate; idx++) {
                 // allocate rates with following rule
-                // R_i = (1/rd_param) * log(sigma^2/D)
+                // R_i = (1/rd_param) * log2(sigma^2/D)
                 R_array[idx] = (log_var_array[idx] - logD) / rd_param;
             }
             break;
