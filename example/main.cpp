@@ -1,4 +1,5 @@
 // main.cpp
+
 #include <ctime>
 #include <fstream>
 #include <iostream>
@@ -9,6 +10,7 @@
 
 #include "../cromq/cromq_decoder.hpp"
 #include "../cromq/cromq_encoder.hpp"
+#include "../cromq/cromq_util.hpp"
 
 
 int generate_subqscore_files(std::string name, std::string fname, std::vector<std::string> &subfnames, int xdim) {
@@ -65,70 +67,103 @@ void get_subfnames(std::string name, std::vector<std::string> &subfnames, int fi
 int main() {
     // Setup encoding parameters here
     // *********************
-    std::string fname = "SRR494099.qscore";
-    int xdim = 65536;
+    std::string fname = "sample.qscore";
+    int xdim = 4096;
     int num_x = 36;
     double rd_param = 1.4;
     double R_enc = 0.1;
-    char mode = 'd';
+    bool encode = true;
+    bool decode = true;
     bool verbose = false;
     // *********************
 
     // Setup decoding parameters here
     // *********************
     int file_idx = 3;
-    int num_dec_pts = 2;
-    std::vector<double> R_dec = {0.05, 0.09};
+    double R_dec = 0.05;
     // *********************
+    
+    // Generating log file
+    std::string log_fname = "Renc_" + std::to_string(R_enc);
+    log_fname += ("Rdec_" + std::to_string(R_dec));
+    log_fname += ("_rd_" + std::to_string(rd_param));
+    log_fname += ("_n_" + std::to_string(xdim));
+    log_fname += ".log";
 
+    std::ofstream log_file;
+    log_file.open(log_fname);
+    log_file << log_fname << std::endl;
+
+    // check inputfile type
     if (fname.substr(fname.size()-7, fname.size()) != ".qscore") {
         std::cout << "Wrong input file name" << std::endl;
         exit(1);
     }
     std::string name = fname.substr(0, fname.size()-7);
 
-    switch(mode) {
-        case 'e': {
-            // split files
-            std::vector<std::string> subfnames;
-            file_idx = generate_subqscore_files(name, fname, subfnames, xdim);
+    std::vector<std::string> subfnames;
+    if (encode) {
+        // split files
+        file_idx = generate_subqscore_files(name, fname, subfnames, xdim);
 
-            // XXX TBD take care of remainder (also when running cromq in the below)
+        // XXX TBD take care of remainder (also when running cromq in the below)
 
-            // Run CROMq encoder
-            std::clock_t run_time;
-            for (int cromq_idx=0; cromq_idx<file_idx-1; cromq_idx++) {
-                run_time = std::clock();
-                std::cout << "Processing " << subfnames[cromq_idx] << std::endl;
-                CROMq_encoder enc(name, subfnames[cromq_idx], cromq_idx, num_x, xdim, rd_param, R_enc, verbose);
-                enc.run();
-                run_time = std::clock() - run_time;
-                std::cout << "It took " << ((double)run_time / (double)CLOCKS_PER_SEC) << " seconds" << std::endl << std::endl;
-            }
-        } break;
-
-        case 'd': {
-            // Run CROMq decoder
-            std::clock_t run_time;
-            std::vector<std::string> subfnames;
-            get_subfnames(name, subfnames, file_idx);
-            for (int cromq_idx=0; cromq_idx<file_idx-1; cromq_idx++) {
-                for (int dec_idx=0; dec_idx<num_dec_pts; dec_idx++) {
-                    run_time = std::clock();
-                    std::cout << "Processing " << subfnames[cromq_idx] << " at rate = " << R_dec[dec_idx] << std::endl;
-                    CROMq_decoder dec(name, subfnames[cromq_idx], cromq_idx, num_x, xdim, rd_param, R_dec[dec_idx], verbose);
-                    dec.run();
-                    run_time = std::clock() - run_time;
-                    std::cout << "It took " << ((double)run_time / (double)CLOCKS_PER_SEC) << " seconds" << std::endl << std::endl;
-                }
-            }
-        } break;
-
-        default: {
-            std::cout << "Wrong mode (it should be either `e` (encoding) or `d` (decoding)" << std::endl;
-            exit(1);
+        // Run CROMq encoder
+        std::clock_t run_time;
+        for (int cromq_idx=0; cromq_idx<file_idx-1; cromq_idx++) {
+            run_time = std::clock();
+            std::cout << "Processing " << subfnames[cromq_idx] << std::endl;
+            CROMq_encoder enc(name,
+                              subfnames[cromq_idx],
+                              cromq_idx,
+                              num_x,
+                              xdim,
+                              rd_param,
+                              R_enc,
+                              verbose);
+            enc.run();
+            run_time = std::clock() - run_time;
+            double runtime_sec = ((double)run_time / (double)CLOCKS_PER_SEC);
+            std::cout << "Enc took " << runtime_sec << " seconds" << std::endl << std::endl;
+            log_file << "Enc took " << runtime_sec << " seconds" << std::endl << std::endl;
         }
     }
+    if (decode) {
+        // Run CROMq decoder
+        std::clock_t run_time;
+        if (!encode) { get_subfnames(name, subfnames, file_idx); }
+        for (int cromq_idx=0; cromq_idx<file_idx-1; cromq_idx++) {
+            run_time = std::clock();
+            std::cout << "Processing " << subfnames[cromq_idx];
+            std::cout << " at rate = " << R_dec << std::endl;
+            CROMq_decoder dec(name,
+                              subfnames[cromq_idx],
+                              cromq_idx,
+                              num_x,
+                              xdim,
+                              rd_param,
+                              R_dec,
+                              verbose);
+            dec.run();
+            run_time = std::clock() - run_time;
+            double runtime_sec = ((double)run_time / (double)CLOCKS_PER_SEC);
+            std::cout << "Dec took " << runtime_sec << " seconds" << std::endl << std::endl;
+            log_file << "Dec took " << runtime_sec << " seconds" << std::endl << std::endl;
+        }
 
+        // Compute distortion
+        double distortion;
+        for (int cromq_idx; cromq_idx<file_idx-1; cromq_idx++) {
+            std::string ofname = get_ofname(name, cromq_idx, R_dec);
+            std::string ifname;
+            std::stringstream ifname_tmp;
+            ifname_tmp.str(std::string());
+            ifname_tmp << std::setw(4) << std::setfill('0') << std::to_string(cromq_idx);
+            ifname = "split_" + name + "_" + ifname_tmp.str() + ".subqscores";
+            std::cout << ifname << " " << ofname << std::endl;
+            distortion = compute_distortion(ifname, ofname, num_x, xdim);
+            log_file << "Distortion (id " << cromq_idx << "): " << distortion << std::endl;
+        }
+    } 
     return 0;
 }

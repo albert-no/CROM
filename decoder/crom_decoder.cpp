@@ -125,15 +125,9 @@ void CROM_decoder::run() {
     int mat_idx;
     int x_hat_idx;
 
-    if (verbose) {
-        std::cout << "declare xout" << std::endl;
-    }
     const int xout_size = x_dim;
     std::vector<double> xout(xout_size);
 
-    if (verbose) {
-        std::cout << "declare thetas" << std::endl;
-    }
     std::vector<double> thetas_inv(half_len);
 
     double scale = sqrt(n*(1-exp(-2*log2n/n)));
@@ -152,15 +146,9 @@ void CROM_decoder::run() {
     scale = sqrt(n*(1-exp(-2*log2n/n))) * exp(-(L-1)*log2n/n);
 
     // Set random seed for thetas
-    if (verbose) {
-        std::cout << "setup fftwplan" << std::endl;
-    }
     fftw_plan p;
     p = fftw_plan_r2r_1d(x_dim, x_hat.data(), xout.data(), FFTW_REDFT01, FFTW_MEASURE);
     for (iter_idx=L-1; iter_idx>=0; iter_idx--) {
-        if (verbose) {
-            printf("iteration = %d\n", iter_idx);
-        }
         mat_idx = iter_idx % long_logn;
 
         // Decoding step
@@ -188,9 +176,6 @@ void CROM_decoder::run() {
                                         mat_idx);
         // update scale with scale factor
         scale /= scale_factor;
-        // if (verbose) {
-        //     print_vector(x_hat, x_dim);
-        // }
     }
     fftw_destroy_plan(p);
 }
