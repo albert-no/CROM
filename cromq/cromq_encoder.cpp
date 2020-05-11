@@ -146,7 +146,7 @@ void CROMq_encoder::do_svd() {
     sValues = svd.singularValues();
     vMatrix = svd.matrixV();
     for (row_idx=0; row_idx<num_x; row_idx++) {
-        std_array[row_idx] = sValues(row_idx);
+        std_array[row_idx] = sqrt(sValues(row_idx));
 
         for (col_idx=0; col_idx<num_x; col_idx++) {
             v_mat[row_idx][col_idx] = vMatrix(row_idx, col_idx);
