@@ -22,7 +22,6 @@ CROMq_encoder::CROMq_encoder(std::string name_in,
     R_overall = R_overall_in;
     verbose = verbose_in;
 
-
     mu.resize(num_x);
     std_array.resize(num_x);
     R_array.resize(num_x);

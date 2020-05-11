@@ -36,9 +36,9 @@ int main() {
     // Generating log file
     int status = mkdir("logs", 0777);
     std::stringstream logstream;
-    logstream << "logs/Renc" << std::fixed << std::setprecision(2) << R_enc;
-    logstream << "_Rdec" << std::fixed << std::setprecision(2) << R_dec;
-    logstream << "_rd" << std::fixed << std::setprecision(2) << rd_param;
+    logstream << "logs/Renc" << std::fixed << std::setprecision(3) << R_enc;
+    logstream << "_Rdec" << std::fixed << std::setprecision(3) << R_dec;
+    logstream << "_rd" << std::fixed << std::setprecision(3) << rd_param;
     logstream << "_n" << xdim;
     logstream << ".log";
     std::string log_fname = logstream.str();
