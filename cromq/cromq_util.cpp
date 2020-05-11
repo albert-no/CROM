@@ -87,3 +87,52 @@ std::string get_ofname(std::string name, int id, double R_overall) {
     ofname = (name + "_id_" + std::to_string(id) + "_Rate_" + std::to_string(R_overall) + "_out.txt");
     return ofname;
 }
+
+int generate_subqscore_files(std::string name,
+                             std::string fname,
+                             std::vector<std::string> &subfnames,
+                             int xdim) {
+
+    int line_idx = 0;
+    int file_idx = 0;
+
+    std::ifstream qscore_file(fname);
+    std::string line;
+    std::stringstream subfname_tmp;
+    bool end_indicator = true;
+    std::string subfname;
+    while (end_indicator) {
+        subfname_tmp.str(std::string());
+        subfname_tmp << std::setw(4) << std::setfill('0') << file_idx;
+        subfname = "split_" + name + "_" + subfname_tmp.str() + ".subqscores";
+        subfnames.push_back(subfname);
+        std::ofstream qscore_subfile(subfname);
+        end_indicator = false;
+        while(std::getline(qscore_file, line)) {
+            qscore_subfile << line << std::endl;
+            line_idx++;
+            if (line_idx == xdim) {
+                end_indicator = true;
+                break;
+            }
+        }
+        qscore_subfile.close();
+        line_idx = 0;
+        file_idx++;
+    }
+    qscore_file.close();
+
+    return file_idx;
+}
+
+
+void get_subfnames(std::string name, std::vector<std::string> &subfnames, int file_idx) {
+    std::stringstream subfname_tmp;
+    std::string subfname;
+    for (int iter_idx=0; iter_idx<file_idx; iter_idx++) {
+        subfname_tmp.str(std::string());
+        subfname_tmp << std::setw(4) << std::setfill('0') << iter_idx;
+        subfname = "split_" + name + "_" + subfname_tmp.str() + ".subqscores";
+        subfnames.push_back(subfname);
+    }
+}

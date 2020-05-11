@@ -13,57 +13,6 @@
 #include "../cromq/cromq_util.hpp"
 
 
-int generate_subqscore_files(std::string name, std::string fname, std::vector<std::string> &subfnames, int xdim) {
-    int line_idx = 0;
-    int file_idx = 0;
-
-    std::ifstream qscore_file(fname);
-    std::string line;
-    std::stringstream subfname_tmp;
-
-    bool end_indicator = true;
-    std::string subfname;
-
-    while (end_indicator) {
-        subfname_tmp.str(std::string());
-        subfname_tmp << std::setw(4) << std::setfill('0') << file_idx;
-        subfname = "split_" + name + "_" + subfname_tmp.str() + ".subqscores";
-
-        subfnames.push_back(subfname);
-        std::ofstream qscore_subfile(subfname);
-
-        end_indicator = false;
-        while(std::getline(qscore_file, line)) {
-            qscore_subfile << line << std::endl;
-            line_idx++;
-            if (line_idx == xdim) {
-                end_indicator = true;
-                break;
-            }
-        }
-        qscore_subfile.close();
-        line_idx = 0;
-        file_idx++;
-    }
-    qscore_file.close();
-
-    return file_idx;
-}
-
-
-void get_subfnames(std::string name, std::vector<std::string> &subfnames, int file_idx) {
-    std::stringstream subfname_tmp;
-    std::string subfname;
-
-    for (int iter_idx=0; iter_idx<file_idx; iter_idx++) {
-        subfname_tmp.str(std::string());
-        subfname_tmp << std::setw(4) << std::setfill('0') << iter_idx;
-        subfname = "split_" + name + "_" + subfname_tmp.str() + ".subqscores";
-        subfnames.push_back(subfname);
-    }
-}
-
-
 int main() {
     // Setup encoding parameters here
     // *********************
@@ -72,23 +21,28 @@ int main() {
     int num_x = 36;
     double rd_param = 1.4;
     double R_enc = 0.1;
-    bool encode = true;
-    bool decode = true;
+    bool encode = false;
+    bool decode = false;
     bool verbose = false;
     // *********************
 
     // Setup decoding parameters here
     // *********************
     int file_idx = 3;
-    double R_dec = 0.05;
+    double R_dec = 0.1;
     // *********************
     
     // Generating log file
-    std::string log_fname = "Renc_" + std::to_string(R_enc);
-    log_fname += ("Rdec_" + std::to_string(R_dec));
-    log_fname += ("_rd_" + std::to_string(rd_param));
-    log_fname += ("_n_" + std::to_string(xdim));
-    log_fname += ".log";
+    std::stringstream logstream;
+    logstream << "Renc" << std::fixed << std::setprecision(2) << R_enc;
+    logstream << "_Rdec" << std::fixed << std::setprecision(2) << R_dec;
+    logstream << "_rd" << std::fixed << std::setprecision(2) << rd_param;
+    logstream << "_n" << xdim;
+    if ((!encode) and (!decode)) {
+        logstream << "_dist";
+    }
+    logstream << ".log";
+    std::string log_fname = logstream.str();
 
     std::ofstream log_file;
     log_file.open(log_fname);
@@ -150,20 +104,21 @@ int main() {
             std::cout << "Dec took " << runtime_sec << " seconds" << std::endl << std::endl;
             log_file << "Dec took " << runtime_sec << " seconds" << std::endl << std::endl;
         }
-
-        // Compute distortion
-        double distortion;
-        for (int cromq_idx; cromq_idx<file_idx-1; cromq_idx++) {
-            std::string ofname = get_ofname(name, cromq_idx, R_dec);
-            std::string ifname;
-            std::stringstream ifname_tmp;
-            ifname_tmp.str(std::string());
-            ifname_tmp << std::setw(4) << std::setfill('0') << std::to_string(cromq_idx);
-            ifname = "split_" + name + "_" + ifname_tmp.str() + ".subqscores";
-            std::cout << ifname << " " << ofname << std::endl;
-            distortion = compute_distortion(ifname, ofname, num_x, xdim);
-            log_file << "Distortion (id " << cromq_idx << "): " << distortion << std::endl;
-        }
     } 
+
+    // Compute distortion
+    double distortion;
+    for (int cromq_idx; cromq_idx<file_idx-1; cromq_idx++) {
+        std::string ofname = get_ofname(name, cromq_idx, R_dec);
+        std::string ifname;
+        std::stringstream ifname_tmp;
+        ifname_tmp << "split_" << name << "_";
+        ifname_tmp << std::setfill('0') << std::setw(4) << cromq_idx;
+        ifname_tmp << ".subqscores";
+        ifname = ifname_tmp.str();
+        std::cout << ifname << " " << ofname << std::endl;
+        distortion = compute_distortion(ifname, ofname, num_x, xdim);
+        log_file << "Distortion (id " << cromq_idx << "): " << distortion << std::endl;
+    }
     return 0;
 }
