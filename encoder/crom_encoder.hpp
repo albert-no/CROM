@@ -7,6 +7,7 @@
 #include <cmath>
 #include <fstream>
 #include <iostream>
+#include <sys/stat.h>
 #include <vector>
 
 #include "../utils/crom_util.hpp"

@@ -4,6 +4,7 @@
 
 #include <cmath>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -89,4 +90,11 @@ double compute_distortion(std::string ifname, std::string ofname, int num_x, int
    -------
    ofname:: output file name */
 std::string get_ofname(std::string name, int id, double R_overall);
+
+int generate_subqscore_files(std::string name,
+                             std::string fname,
+                             std::vector<std::string> &subfnames,
+                             int xdim);
+
+void get_subfnames(std::string name, std::vector<std::string> &subfnames, int file_idx);
 #endif

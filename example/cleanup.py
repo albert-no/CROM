@@ -1,6 +1,7 @@
 # cleanup.py
 
 import os
+import shutil
 
 from glob import glob
 from subprocess import call
@@ -12,6 +13,10 @@ def main():
         fnames = glob('./*.'+file_format)
         for fname in fnames:
             os.remove(fname)
+
+    shutil.rmtree('bin')
+    shutil.rmtree('svd_param')
+    shutil.rmtree('logs')
 
 
 if __name__ == "__main__":
