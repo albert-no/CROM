@@ -17,7 +17,7 @@
 int main() {
     // Setup encoding parameters here
     // *********************
-    std::string fname = "sample.qscore";
+    std::string fname = "SRR494099.qscore";
     int xdim = 4096;
     int num_x = 36;
     double rd_param = 1.4;
