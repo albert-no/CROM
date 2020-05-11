@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <sstream>
 #include <string>
+#include <sys/stat.h>
 #include <vector>
 
 #include "../cromq/cromq_decoder.hpp"
@@ -21,8 +22,8 @@ int main() {
     int num_x = 36;
     double rd_param = 1.4;
     double R_enc = 0.1;
-    bool encode = false;
-    bool decode = false;
+    bool encode = true;
+    bool decode = true;
     bool verbose = false;
     // *********************
 
@@ -33,14 +34,12 @@ int main() {
     // *********************
     
     // Generating log file
+    int status = mkdir("logs", 0777);
     std::stringstream logstream;
-    logstream << "Renc" << std::fixed << std::setprecision(2) << R_enc;
+    logstream << "logs/Renc" << std::fixed << std::setprecision(2) << R_enc;
     logstream << "_Rdec" << std::fixed << std::setprecision(2) << R_dec;
     logstream << "_rd" << std::fixed << std::setprecision(2) << rd_param;
     logstream << "_n" << xdim;
-    if ((!encode) and (!decode)) {
-        logstream << "_dist";
-    }
     logstream << ".log";
     std::string log_fname = logstream.str();
 
@@ -56,7 +55,9 @@ int main() {
     std::string name = fname.substr(0, fname.size()-7);
 
     std::vector<std::string> subfnames;
+
     if (encode) {
+        double enc_runtime = 0;
         // split files
         file_idx = generate_subqscore_files(name, fname, subfnames, xdim);
 
@@ -78,11 +79,15 @@ int main() {
             enc.run();
             run_time = std::clock() - run_time;
             double runtime_sec = ((double)run_time / (double)CLOCKS_PER_SEC);
-            std::cout << "Enc took " << runtime_sec << " seconds" << std::endl << std::endl;
-            log_file << "Enc took " << runtime_sec << " seconds" << std::endl << std::endl;
+            std::cout << "Enc took " << runtime_sec << " seconds" << std::endl;
+            log_file << "Enc took " << runtime_sec << " seconds" << std::endl;
+            enc_runtime += runtime_sec;
         }
+        std::cout << "Total: Enc took " << enc_runtime << " seconds" << std::endl << std::endl;
+        log_file << "Total: Enc took " << enc_runtime << " seconds" << std::endl << std::endl;
     }
     if (decode) {
+        double dec_runtime = 0;
         // Run CROMq decoder
         std::clock_t run_time;
         if (!encode) { get_subfnames(name, subfnames, file_idx); }
@@ -103,12 +108,17 @@ int main() {
             double runtime_sec = ((double)run_time / (double)CLOCKS_PER_SEC);
             std::cout << "Dec took " << runtime_sec << " seconds" << std::endl << std::endl;
             log_file << "Dec took " << runtime_sec << " seconds" << std::endl << std::endl;
+            dec_runtime += runtime_sec;
         }
+        std::cout << "Total: Dec took " << dec_runtime << " seconds" << std::endl;
+        log_file << "Total: Dec took " << dec_runtime << " seconds" << std::endl;
     } 
 
     // Compute distortion
-    double distortion;
-    for (int cromq_idx; cromq_idx<file_idx-1; cromq_idx++) {
+    std::cout << "Compute Distortion" << std::endl;
+    double distortion_avg = 0;
+    for (int cromq_idx=0; cromq_idx<file_idx-1; cromq_idx++) {
+        double distortion;
         std::string ofname = get_ofname(name, cromq_idx, R_dec);
         std::string ifname;
         std::stringstream ifname_tmp;
@@ -116,9 +126,13 @@ int main() {
         ifname_tmp << std::setfill('0') << std::setw(4) << cromq_idx;
         ifname_tmp << ".subqscores";
         ifname = ifname_tmp.str();
-        std::cout << ifname << " " << ofname << std::endl;
         distortion = compute_distortion(ifname, ofname, num_x, xdim);
+        std::cout << "Distortion (id " << cromq_idx << "): " << distortion << std::endl;
         log_file << "Distortion (id " << cromq_idx << "): " << distortion << std::endl;
+        distortion_avg += distortion;
     }
+    distortion_avg /= (double)(file_idx-1);
+    std::cout << "Average distortion : " << distortion_avg << std::endl;
+    log_file << "Average distortion : " << distortion_avg << std::endl;
     return 0;
 }

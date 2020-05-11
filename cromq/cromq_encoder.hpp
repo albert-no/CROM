@@ -5,8 +5,10 @@
 #include <cmath>
 #include <fstream>
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <string>
+#include <sys/stat.h>
 #include <vector>
 
 #include <Eigen/SVD>

@@ -1,6 +1,5 @@
 // cromq_encoder.cpp
 #include "cromq_encoder.hpp"
-#include <iomanip>
 
 using namespace Eigen;
 
@@ -170,6 +169,8 @@ void CROMq_encoder::do_svd() {
 
 void CROMq_encoder::write_svd_params() {
     std::string mu_fname, v_mat_fname, std_array_fname;
+
+    int status = mkdir("svd_param", 0777);
 
     mu_fname = get_mu_fname(name, id);
     v_mat_fname = get_v_mat_fname(name, id);

@@ -50,7 +50,7 @@ void CROM_decoder::read_m_array(bool binary) {
 
     // if binary flag is on
     if (binary) {
-        filename = "m_array_" + name + ".bin";
+        filename = "bin/m_array_" + name + ".bin";
         std::ifstream m_infile (filename, std::ios::binary);
 
         int logn = int(log2(x_dim));

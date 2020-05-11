@@ -39,19 +39,19 @@ int allocate_rate(std::vector<double> &std_array, std::vector<double> &R_array, 
 
 std::string get_mu_fname(std::string name, int id) {
     std::string mu_fname;
-    mu_fname = "mu_id_" + std::to_string(id) + "_" + name + ".txt";
+    mu_fname = "svd_param/mu_id_" + std::to_string(id) + "_" + name + ".txt";
     return mu_fname;
 }
 
 std::string get_v_mat_fname(std::string name, int id) {
     std::string v_mat_fname;
-    v_mat_fname = "v_mat_id_" + std::to_string(id) + "_" + name + ".txt";
+    v_mat_fname = "svd_param/v_mat_id_" + std::to_string(id) + "_" + name + ".txt";
     return v_mat_fname;
 }
 
 std::string get_std_array_fname(std::string name, int id) {
     std::string std_array_fname;
-    std_array_fname = "std_array_id_" + std::to_string(id) + "_" + name + ".txt";
+    std_array_fname = "svd_param/std_array_id_" + std::to_string(id) + "_" + name + ".txt";
     return std_array_fname;
 }
 

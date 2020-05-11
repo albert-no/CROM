@@ -195,9 +195,11 @@ void CROM_encoder::write_m_array(bool binary) {
     std::string filename;
     int line_idx;
 
+    int status = mkdir("bin", 0777);
+
     // if binary flag is on
     if (binary) {
-        filename = "m_array_" + name + ".bin";
+        filename = "bin/m_array_" + name + ".bin";
         std::ofstream m_outfile (filename, std::ios::binary);
 
         int logn = int(log2(x_dim));
