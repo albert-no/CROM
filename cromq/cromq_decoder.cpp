@@ -30,6 +30,10 @@ CROMq_decoder::CROMq_decoder(std::string name_in,
 
     v_mat.resize(num_x, std::vector<double>(num_x));
     x_hat_array.resize(x_dim, std::vector<double>(num_x));
+    for (int i=0; i<x_dim; i++)
+        for (int j=0; j<num_x; j++)
+            x_hat_array[i][j] = 0;
+
     q_scores.resize(x_dim, std::vector<char>(num_x));
 }
 
@@ -89,8 +93,8 @@ char CROMq_decoder::q_score_round(double q_score) {
     if (q_score < 33) {
         rounded = 33;
     }
-    else if (q_score > 73) {
-        rounded = 73;
+    else if (q_score > 75) {
+        rounded = 75;
     }
     else {
         rounded = round(q_score);
@@ -109,7 +113,7 @@ void CROMq_decoder::unnormalize_q_scores() {
     for (row_idx=0; row_idx<x_dim; row_idx++) {
         for(col_idx=0; col_idx<num_x; col_idx++) {
             // unnormalize with std_array
-            x_hat_array[row_idx][col_idx] *=  std_array[col_idx];
+            x_hat_array[row_idx][col_idx] *= std_array[col_idx];
             // compute Q = V * X + mu
             q_score_temp = 0;
             q_scores[row_idx][col_idx] = 0;
@@ -160,14 +164,12 @@ void CROMq_decoder::run() {
         std::cout << std::endl;
     }
 
-    for (subseq_idx=0; subseq_idx<num_x; subseq_idx++) {
+    for (subseq_idx=0; subseq_idx<num_nonzero_rate; subseq_idx++) {
         // declare sub_encoder
         subname = (name + "_id_" + std::to_string(id) + "_subid_" +
                    std::to_string(subseq_idx));
 
         L = static_cast<int> (n * R_array[subseq_idx] / log2(n));
-        if (verbose)
-            std::cout << "L = " << L << std::endl;
         CROM_decoder subdec(subname, x_dim, L, true);
 
         // read m_array from file
@@ -179,12 +181,22 @@ void CROMq_decoder::run() {
             std::cout << "Running " << subseq_idx << "-th subdecoder" << std::endl;
         }
         subdec.run();
+        if (verbose) {
+            std::cout << "set x to array" << std::endl;
+        }
 
         // assign x_hat to x_hat_array 
         subdec.set_x_to_array(x_hat_array, subseq_idx, true);
     }
+    if (verbose) {
+        std::cout << "unnormalizing qscores" << std::endl;
+    }
     // unnormalize q_scores
     unnormalize_q_scores();
+
+    if (verbose) {
+        std::cout << "Writing qscores" << std::endl;
+    }
 
     // write q_hat
     write_q_scores();
