@@ -170,6 +170,10 @@ void CROMq_decoder::run() {
                    std::to_string(subseq_idx));
 
         L = static_cast<int> (n * R_array[subseq_idx] / log2(n));
+        // If L == 0, it causes seg fault error while decalring m_array[L]
+        // do not run the decoder in this case
+        if (L == 0) break;
+
         CROM_decoder subdec(subname, x_dim, L, true);
 
         // read m_array from file
