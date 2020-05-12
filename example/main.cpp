@@ -104,6 +104,8 @@ int main() {
                 run_time = std::clock();
                 std::cout << "Processing " << subfnames[cromq_idx];
                 std::cout << " at rate = " << R_dec << std::endl;
+                log_file << "Processing " << subfnames[cromq_idx];
+                log_file << " at rate = " << R_dec << std::endl;
                 CROMq_decoder dec(name,
                                   subfnames[cromq_idx],
                                   cromq_idx,
