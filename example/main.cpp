@@ -92,11 +92,12 @@ int main() {
     log_file << std::endl << std::endl;
 
     if (decode) {
-        double dec_runtime = 0;
+        double dec_runtime;
         // Run CROMq decoder
         std::clock_t run_time;
         if (!encode) { get_subfnames(name, subfnames, file_idx); }
         for (int r_dec_idx=0; r_dec_idx<r_dec_num; r_dec_idx++) {
+            dec_runtime = 0;
             run_time = std::clock();
             R_dec = R_dec_array[r_dec_idx];
             for (int cromq_idx=0; cromq_idx<file_idx-1; cromq_idx++) {
