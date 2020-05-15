@@ -34,7 +34,6 @@ CROMq_wrapper::CROMq_wrapper(std::string name_in,
     std_array.resize(num_x);
     v_mat.resize(num_x, std::vector<double>(num_x));
     cov.resize(num_x, std::vector<double>(num_x));
-    subfnames.resize(num_x);
 
     for (int row_idx=0; row_idx<num_x; row_idx++) {
         mu[row_idx] = 0;
@@ -154,7 +153,7 @@ void CROMq_wrapper::split_qscores(bool skip) {
     std::string subfname;
     while (end_indicator) {
         subfname = get_subfname(file_idx);
-        subfnames[file_idx] = subfname;
+        subfnames.push_back(subfname) ;
         std::ofstream qscore_subfile(subfname);
 
         end_indicator = false;
