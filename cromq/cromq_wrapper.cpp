@@ -54,9 +54,9 @@ CROMq_wrapper::CROMq_wrapper(std::string name_in,
 
     // set svd parameter filenames
     int status = mkdir(svd_folder.c_str(), 0777);
-    std::string mu_fname = svd_folder + "/mu_" + name + ".txt";
-    std::string v_mat_fname = svd_folder + "/v_mat_" + name + ".txt";
-    std::string std_array_fname = svd_folder + "/std_array_" + name + ".txt";
+    mu_fname = svd_folder + "/mu_" + name + ".txt";
+    v_mat_fname = svd_folder + "/v_mat_" + name + ".txt";
+    std_array_fname = svd_folder + "/std_array_" + name + ".txt";
 }
 
 CROMq_wrapper::~CROMq_wrapper(){}
