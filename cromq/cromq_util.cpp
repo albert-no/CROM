@@ -1,6 +1,20 @@
 // cromq_util.cpp
 #include "cromq_util.hpp"
 
+std::string get_log_fname(std::string logfolder, double R_enc, double rd_param, int xdim) {
+    // Create log folder
+    int status = mkdir(logfolder.c_str(), 0777);
+
+    // Generating log file name
+    std::stringstream logstream;
+    logstream << logfolder << "/Renc" << std::fixed << std::setprecision(3) << R_enc;
+    logstream << "_rd" << std::fixed << std::setprecision(3) << rd_param;
+    logstream << "_n" << xdim;
+    logstream << ".log";
+    std::string log_fname = logstream.str();
+
+    return log_fname;
+}
 
 int allocate_rate(std::vector<double> &std_array, std::vector<double> &R_array, int num_x,
                   double rd_param, double R_overall) {

@@ -14,7 +14,7 @@ def main():
         for fname in fnames:
             os.remove(fname)
 
-    folders = ['bin', 'svd_param', 'logs']
+    folders = ['bin', 'svd_params', 'logs']
     for folder in folders:
         try:
             shutil.rmtree(folder)

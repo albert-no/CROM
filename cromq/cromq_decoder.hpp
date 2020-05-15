@@ -42,7 +42,7 @@ class CROMq_decoder
     int num_x;
     int x_dim;
     double rd_param;
-    double R_overall;
+    double R_dec;
     bool verbose;
 
     // Extract from original q scores
@@ -61,12 +61,6 @@ class CROMq_decoder
     // Allocated rates
     std::vector<double> R_array;
 
-    // Number of nonzero rate
-    int num_nonzero_rate;
-
-    // read mu, v_mat, std_array (we do not need cov)
-    void get_svd_params();
-
     // round q_score into char format
     char q_score_round(double q_score);
 
@@ -79,8 +73,17 @@ class CROMq_decoder
 
 public:
     // Constructor
-    CROMq_decoder(std::string name_in, std::string fname_in, int id_in,
-                  int num_x_in, int x_dim_in, double rd_param_in, double R_overall_in,
+    CROMq_decoder(std::string name_in,
+                  std::string fname_in,
+                  int id_in,
+                  int num_x_in,
+                  int x_dim_in,
+                  double rd_param_in,
+                  double R_dec_in,
+                  std::vector<double> R_allocated_in,
+                  std::vector<double> mu_in,
+                  std::vector<double> std_array_in,
+                  std::vector<std::vector<double>> v_mat_in,
                   bool verbose);
 
     // Destructor

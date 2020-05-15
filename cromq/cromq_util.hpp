@@ -8,8 +8,11 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <sys/stat.h>
 #include <vector>
 
+
+std::string get_log_fname(std::string, double R_enc, double rd_param, int xdim);
 
 /* Allocate rate according to the std_array
    Assuming D = e^{-1.4R}
@@ -27,42 +30,6 @@
    num_nonzero_rate:: number of nonzero rates in R_array */
 int allocate_rate(std::vector<double> &std_array, std::vector<double> &R_array, int num_x,
         double rd_param, double R_overall);
-
-/* Get the file name that has mu values
-
-   Parameters
-   ----------
-   fname:: string of file name
-   id:: id
-
-   Returns
-   -------
-   mu_fname:: file name that contains mu values */
-std::string get_mu_fname(std::string fname, int id);
-
-/* Get the file name that has v_mat values
-
-   Parameters
-   ----------
-   fname:: string of file name
-   id:: id
-
-   Returns
-   -------
-   v_mat_fname:: file name that contains v_mat values */
-std::string get_v_mat_fname(std::string fname, int id);
-
-/* Get the file name that has mu values
-
-   Parameters
-   ----------
-   fname:: string of file name
-   id:: id
-
-   Returns
-   -------
-   std_array_fname:: file name that contains mu values */
-std::string get_std_array_fname(std::string fname, int id);
 
 /* Compute the distortion between original and the reconstructed q_scores
 
