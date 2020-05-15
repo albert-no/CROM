@@ -14,9 +14,12 @@ def main():
         for fname in fnames:
             os.remove(fname)
 
-    shutil.rmtree('bin')
-    shutil.rmtree('svd_param')
-    shutil.rmtree('logs')
+    folders = ['bin', 'svd_param', 'logs']
+    for folder in folders:
+        try:
+            shutil.rmtree(folder)
+        except:
+            print(folder + " does not exsits")
 
 
 if __name__ == "__main__":
